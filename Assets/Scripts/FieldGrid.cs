@@ -126,18 +126,18 @@ public class FieldGrid : MonoBehaviour
     void RedrawPlayersTilemap()
     {
         playerTileMap.ClearAllTiles();
-        int[,] matrix = field.Matrix;
+        var matrix = field.Matrix;
         // iterate through all cells
         for (int i = 0; i < field.Height; i++)
         {
             for (int j = 0; j < field.Width; j++)
             {
-                int player = matrix[i, j];
-                if (player == 0)
+                PlayerMark player = matrix[i][j];
+                if (player == PlayerMark.Empty)
                 {
                     continue; // empty cell
                 }
-                Tile tile = player == 1 ? player1.Representation : player2.Representation;
+                Tile tile = player == PlayerMark.Player1 ? player1.Representation : player2.Representation;
                 Debug.Log(tile);
                 int vPos = i - field.Height / 2;
                 int hPos = j - field.Width / 2;
