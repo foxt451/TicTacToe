@@ -95,8 +95,8 @@ public class FieldGrid : MonoBehaviour
         Vector3 clickPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int pos = fieldTileMap.WorldToCell(clickPoint);
         Vector3Int matrixPos = pos + new Vector3Int(
-            field.totalIncreas.xLeft,
-            field.totalIncreas.yBot,
+            field.totalIncrease.xLeft + field.initialSize.width / 2,
+            field.totalIncrease.yBot + field.initialSize.height / 2,
             0);
         Debug.Log("Matrix" + matrixPos);
         gameController.Move(matrixPos);
@@ -124,8 +124,8 @@ public class FieldGrid : MonoBehaviour
         boxCollider.size = new Vector2(newWidth, newHeight);
 
         Vector2 offset = new Vector2(
-            boxCollider.size.x / 2 - field.totalIncreas.xLeft,
-            boxCollider.size.y / 2 - field.totalIncreas.yBot
+            (boxCollider.size.x / 2 - field.totalIncrease.xLeft - field.initialSize.width / 2) * fieldTileMap.cellSize.x,
+            (boxCollider.size.y / 2 - field.totalIncrease.yBot - field.initialSize.height / 2) * fieldTileMap.cellSize.y
             );
         boxCollider.offset = offset;
     }
@@ -141,8 +141,8 @@ public class FieldGrid : MonoBehaviour
                 int verticalIndex = i == 0 ? 0 : (i == field.Height - 1 ? 2 : 1);
                 int horizontalIndex = j == 0 ? 0 : (j == field.Width - 1 ? 2 : 1);
                 Tile tile = tileMatrix[verticalIndex, horizontalIndex];
-                int vPos = i - field.totalIncreas.yBot;
-                int hPos = j - field.totalIncreas.xLeft;
+                int vPos = i - field.totalIncrease.yBot - field.initialSize.height / 2;
+                int hPos = j - field.totalIncrease.xLeft - field.initialSize.width / 2;
                 fieldTileMap.SetTile(new Vector3Int(hPos, vPos, 0), tile);
             }
         }
@@ -163,8 +163,8 @@ public class FieldGrid : MonoBehaviour
                     continue; // empty cell
                 }
                 Tile tile = player == PlayerMark.Player1 ? player1.Representation : player2.Representation;
-                int vPos = i - field.totalIncreas.yBot;
-                int hPos = j - field.totalIncreas.xLeft;
+                int vPos = i - field.totalIncrease.yBot - field.initialSize.height / 2;
+                int hPos = j - field.totalIncrease.xLeft - field.initialSize.width / 2;
                 playerTileMap.SetTile(new Vector3Int(hPos, vPos, 0), tile);
             }
         }

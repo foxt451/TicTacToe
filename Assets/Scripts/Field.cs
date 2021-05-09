@@ -27,7 +27,9 @@ public class Field : MonoBehaviour
     // one way to achieve this is to remember by how much and in what direction we have resized the grid
     // the grid drawer will take these offsets into consideration
     public (int xRight, int xLeft,
-        int yTop, int yBot) totalIncreas = (0, 0, 0, 0);
+        int yTop, int yBot) totalIncrease = (0, 0, 0, 0);
+
+    public (int width, int height) initialSize;
 
     public List<List<PlayerMark>> Matrix { get; private set; } // 2d field with moves, 1 - one player, 2 - another, 0 - empty cell
     // (0, 0) - lower left
@@ -35,7 +37,7 @@ public class Field : MonoBehaviour
 
     private void Awake()
     {
-        
+        initialSize = (width, height);
     }
 
     
@@ -121,16 +123,16 @@ public class Field : MonoBehaviour
         switch (borderToMove)
         {
             case FieldBorders.Top:
-                totalIncreas.yTop += increase;
+                totalIncrease.yTop += increase;
                 break;
             case FieldBorders.Bottom:
-                totalIncreas.yBot += increase;
+                totalIncrease.yBot += increase;
                 break;
             case FieldBorders.Left:
-                totalIncreas.xLeft += increase;
+                totalIncrease.xLeft += increase;
                 break;
             case FieldBorders.Right:
-                totalIncreas.xRight += increase;
+                totalIncrease.xRight += increase;
                 break;
         }
 
