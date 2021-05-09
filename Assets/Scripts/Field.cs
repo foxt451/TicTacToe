@@ -22,11 +22,16 @@ public class Field : MonoBehaviour
     private int width;
     public int Width { get => width; private set => width = value; }
 
+    // when we draw grid it's centered by default
+    // but we want it to remain fixed in position even after resizing
+    // one way to achieve this is to remember by how much and in what direction we have resized the grid
+    // the grid drawer will take these offsets into consideration
+    public (int xRight, int xLeft,
+        int yTop, int yBot) totalIncreas = (0, 0, 0, 0);
+
     public List<List<PlayerMark>> Matrix { get; private set; } // 2d field with moves, 1 - one player, 2 - another, 0 - empty cell
     // (0, 0) - lower left
     // (N, N) - upper right
-
-    private PlayerMark movingPlayer = PlayerMark.Player1;
 
     private void Awake()
     {
@@ -83,6 +88,7 @@ public class Field : MonoBehaviour
         // add empty row where we need
         if (borderToMove == FieldBorders.Bottom || borderToMove == FieldBorders.Top)
         {
+
             for (int i = 0; i < increase; i++)
             {
                 List<PlayerMark> newRow = new List<PlayerMark>();
@@ -100,6 +106,7 @@ public class Field : MonoBehaviour
         // add empty column where we need
         if (borderToMove == FieldBorders.Left || borderToMove == FieldBorders.Right)
         {
+
             // add a cell to every row
             for (int i = 0; i < Height; i++)
             {
@@ -110,6 +117,23 @@ public class Field : MonoBehaviour
             }
             Width += increase;
         }
+
+        switch (borderToMove)
+        {
+            case FieldBorders.Top:
+                totalIncreas.yTop += increase;
+                break;
+            case FieldBorders.Bottom:
+                totalIncreas.yBot += increase;
+                break;
+            case FieldBorders.Left:
+                totalIncreas.xLeft += increase;
+                break;
+            case FieldBorders.Right:
+                totalIncreas.xRight += increase;
+                break;
+        }
+
     }
 
     private void UpdateSize(Vector3Int pos)
@@ -123,7 +147,7 @@ public class Field : MonoBehaviour
         }
     } 
 
-    public void MakeMove(Vector3Int matrixPos)
+    public void PutPlayer(Vector3Int matrixPos, PlayerMark player)
     {
         // check if the pos falls within the current field
         if (!FallsWithinGrid(matrixPos))
@@ -136,9 +160,7 @@ public class Field : MonoBehaviour
             return;
         }
 
-        // put the player into matrix and change the turn
-        Matrix[matrixPos.y][matrixPos.x] = movingPlayer;
-        movingPlayer = movingPlayer == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1;
+        Matrix[matrixPos.y][matrixPos.x] = player;
 
         // if we approach borders, resize the field
         UpdateSize(matrixPos);
