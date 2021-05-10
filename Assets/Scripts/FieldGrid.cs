@@ -151,13 +151,12 @@ public class FieldGrid : MonoBehaviour
     void RedrawPlayersTilemap()
     {
         playerTileMap.ClearAllTiles();
-        var matrix = field.Matrix;
         // iterate through all cells
         for (int i = 0; i < field.Height; i++)
         {
             for (int j = 0; j < field.Width; j++)
             {
-                PlayerMark player = matrix[i][j];
+                PlayerMark player = field.GetPlayerAtCell(j, i);
                 if (player == PlayerMark.Empty)
                 {
                     continue; // empty cell

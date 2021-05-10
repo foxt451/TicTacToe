@@ -30,8 +30,9 @@ public class Field : MonoBehaviour
         int yTop, int yBot) totalIncrease = (0, 0, 0, 0);
 
     public (int width, int height) initialSize;
+    public (int x, int y) lastMove;
 
-    public List<List<PlayerMark>> Matrix { get; private set; } // 2d field with moves, 1 - one player, 2 - another, 0 - empty cell
+    private List<List<PlayerMark>> matrix; // 2d field with moves, 1 - one player, 2 - another, 0 - empty cell
     // (0, 0) - lower left
     // (N, N) - upper right
 
@@ -45,17 +46,27 @@ public class Field : MonoBehaviour
     private void Start()
     {
         // initial field matrix
-        Matrix = new List<List<PlayerMark>>();
+        matrix = new List<List<PlayerMark>>();
         for (int i = 0; i < Height; i++)
         {
-            Matrix.Add(new List<PlayerMark>());
+            matrix.Add(new List<PlayerMark>());
             for (int j = 0; j < Width; j++) 
             {
-                Matrix[i].Add(PlayerMark.Empty);
+                matrix[i].Add(PlayerMark.Empty);
             }
         }
 
         Messenger.Broadcast(GameEvents.FIELD_UPDATED);
+    }
+
+    public bool HasCell(int x, int y)
+    {
+        return x >= 0 && y >= 0 && x < Width && y < Height;
+    }
+
+    public PlayerMark GetPlayerAtCell(int x, int y)
+    {
+        return matrix[y][x];
     }
 
     private bool FallsWithinGrid(Vector3Int matrixPos)
@@ -65,7 +76,7 @@ public class Field : MonoBehaviour
 
     private bool IsCellEmpty(Vector3Int matrixPos)
     {
-        if (Matrix[matrixPos.y][matrixPos.x] != 0)
+        if (matrix[matrixPos.y][matrixPos.x] != 0)
         {
             return false;
         }
@@ -90,7 +101,6 @@ public class Field : MonoBehaviour
         // add empty row where we need
         if (borderToMove == FieldBorders.Bottom || borderToMove == FieldBorders.Top)
         {
-
             for (int i = 0; i < increase; i++)
             {
                 List<PlayerMark> newRow = new List<PlayerMark>();
@@ -100,7 +110,7 @@ public class Field : MonoBehaviour
                 {
                     newRow.Add(PlayerMark.Empty);
                 }
-                Matrix.Insert(borderToMove == FieldBorders.Top ? Height : 0, newRow);
+                matrix.Insert(borderToMove == FieldBorders.Top ? Height : 0, newRow);
             }
             Height += increase;
         }
@@ -114,7 +124,7 @@ public class Field : MonoBehaviour
             {
                 for (int j = 0; j < increase; j++)
                 {
-                    Matrix[i].Insert(borderToMove == FieldBorders.Right ? Width : 0, PlayerMark.Empty);
+                    matrix[i].Insert(borderToMove == FieldBorders.Right ? Width : 0, PlayerMark.Empty);
                 }
             }
             Width += increase;
@@ -126,9 +136,11 @@ public class Field : MonoBehaviour
                 totalIncrease.yTop += increase;
                 break;
             case FieldBorders.Bottom:
+                lastMove.y += increase;
                 totalIncrease.yBot += increase;
                 break;
             case FieldBorders.Left:
+                lastMove.x += increase;
                 totalIncrease.xLeft += increase;
                 break;
             case FieldBorders.Right:
@@ -162,7 +174,9 @@ public class Field : MonoBehaviour
             return;
         }
 
-        Matrix[matrixPos.y][matrixPos.x] = player;
+        matrix[matrixPos.y][matrixPos.x] = player;
+
+        lastMove = (matrixPos.x, matrixPos.y);
 
         // if we approach borders, resize the field
         UpdateSize(matrixPos);
