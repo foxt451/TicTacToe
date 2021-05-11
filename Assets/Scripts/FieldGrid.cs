@@ -92,6 +92,11 @@ public class FieldGrid : MonoBehaviour
 
     public void OnMouseDown()
     {
+        if (GameController.gameState != GameState.INGAME)
+        {
+            return;
+        }
+
         Vector3 clickPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int pos = fieldTileMap.WorldToCell(clickPoint);
         Vector3Int matrixPos = pos + new Vector3Int(

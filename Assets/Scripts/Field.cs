@@ -59,6 +59,17 @@ public class Field : MonoBehaviour
         Messenger.Broadcast(GameEvents.FIELD_UPDATED);
     }
 
+    public void Clear()
+    {
+        foreach(var row in matrix)
+        {
+            for (int i = 0; i < row.Count; i++)
+            {
+                row[i] = PlayerMark.Empty;
+            }
+        }
+    }
+
     public bool HasCell(int x, int y)
     {
         return x >= 0 && y >= 0 && x < Width && y < Height;
