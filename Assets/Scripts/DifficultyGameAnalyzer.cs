@@ -16,7 +16,7 @@ public class DifficultyGameAnalyzer: GameAnalyzer
     {
         foreach (var direction in directions)
         {
-            Line line = GetLineInFullDirection(direction, field.lastMove, true, lineLength);
+            Line line = GetLineInFullDirection(direction, field.stableLastMove, true, lineLength);
             if (line.length >= lineLength)
             {
                 return DifficultyGameStatus.Defeated;

@@ -61,18 +61,8 @@ public class FieldGrid : MonoBehaviour
         tileMatrix = new Tile[,] { { lowerLeftCell, lowerCenterCell, lowerRightCell },
             { centerLeftCell, centerCenterCell, centerRightCell }, { upperLeftCell, upperCenterCell, upperRightCell} };
 
-        //EventTrigger.Entry triggerEntry = new EventTrigger.Entry();
-        //triggerEntry.eventID = EventTriggerType.PointerClick;
-        //triggerEntry.callback.AddListener((BaseEventData data) => OnClick((PointerEventData)data));
-        //EventTrigger trigger = fieldTileMap.GetComponent<EventTrigger>();
-        //trigger.triggers.Add(triggerEntry);
-
-        // TODO
-        // implement clicking detection for tilemap
-
         Messenger.AddListener(GameEvents.FIELD_UPDATED, RedrawGrid);
         boxCollider = GetComponent<BoxCollider2D>();
-        //sddsds
     }
 
     private void Start()
@@ -99,12 +89,14 @@ public class FieldGrid : MonoBehaviour
 
         Vector3 clickPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int pos = fieldTileMap.WorldToCell(clickPoint);
-        Vector3Int matrixPos = pos + new Vector3Int(
-            field.totalIncrease.xLeft + field.initialSize.width / 2,
-            field.totalIncrease.yBot + field.initialSize.height / 2,
-            0);
-        Debug.Log("Matrix" + matrixPos);
-        gameController.Move(matrixPos);
+        Debug.Log("Cell " + pos);
+
+        // matrix position are passed not adjusted to expansion
+        // so that they hold even after Expand
+        // they are adjusted in field Move method
+        Vector3Int stableMatrixPos = pos;
+        Debug.Log("Stable " + stableMatrixPos);
+        gameController.Move(new Vector2Int(stableMatrixPos.x, stableMatrixPos.y));
     }
 
     void RedrawGrid()
@@ -112,18 +104,11 @@ public class FieldGrid : MonoBehaviour
         ResizeCollider();
         RedrawFieldTilemap();
         RedrawPlayersTilemap();
-
-        // move grid by delta-offset
-        //gameObject.transform.Translate(GridOffsetVector - PreviousGridOffsetVector);
-        //Vector3 offset = Offset();
-        //PreviousGridOffsetVector = GridOffsetVector ;
     }
 
     // resize collider, so that the clicks are getting registered
     void ResizeCollider()
     {
-        //float newWidth = Mathf.Ceil(field.Width * fieldTileMap.cellSize.x / 2) * 2;
-        //float newHeight = Mathf.Ceil(field.Height * fieldTileMap.cellSize.y / 2) * 2;
         float newWidth = Mathf.Ceil(field.Width * fieldTileMap.cellSize.x / 2) * 2;
         float newHeight = Mathf.Ceil(field.Height * fieldTileMap.cellSize.y / 2) * 2;
         boxCollider.size = new Vector2(newWidth, newHeight);
@@ -138,17 +123,17 @@ public class FieldGrid : MonoBehaviour
     void RedrawFieldTilemap()
     {
         fieldTileMap.ClearAllTiles();
+
         // iterate through all cells
-        for (int i = 0; i < field.Height; i++)
+        var stableBounds = field.GetStableBounds();
+        for (int i = stableBounds.yBot; i <= stableBounds.yTop; i++)
         {
-            for (int j = 0; j < field.Width; j++)
+            for (int j = stableBounds.xLeft; j <= stableBounds.xRight; j++)
             {
-                int verticalIndex = i == 0 ? 0 : (i == field.Height - 1 ? 2 : 1);
-                int horizontalIndex = j == 0 ? 0 : (j == field.Width - 1 ? 2 : 1);
+                int verticalIndex = i == stableBounds.yBot ? 0 : (i == stableBounds.yTop ? 2 : 1);
+                int horizontalIndex = j == stableBounds.xLeft ? 0 : (j == stableBounds.xRight ? 2 : 1);
                 Tile tile = tileMatrix[verticalIndex, horizontalIndex];
-                int vPos = i - field.totalIncrease.yBot - field.initialSize.height / 2;
-                int hPos = j - field.totalIncrease.xLeft - field.initialSize.width / 2;
-                fieldTileMap.SetTile(new Vector3Int(hPos, vPos, 0), tile);
+                fieldTileMap.SetTile(new Vector3Int(j, i, 0), tile);
             }
         }
     }
@@ -156,10 +141,12 @@ public class FieldGrid : MonoBehaviour
     void RedrawPlayersTilemap()
     {
         playerTileMap.ClearAllTiles();
+
         // iterate through all cells
-        for (int i = 0; i < field.Height; i++)
+        var stableBounds = field.GetStableBounds();
+        for (int i = stableBounds.yBot; i <= stableBounds.yTop; i++)
         {
-            for (int j = 0; j < field.Width; j++)
+            for (int j = stableBounds.xLeft; j <= stableBounds.xRight; j++)
             {
                 PlayerMark player = field.GetPlayerAtCell(j, i);
                 if (player == PlayerMark.Empty)
@@ -167,9 +154,7 @@ public class FieldGrid : MonoBehaviour
                     continue; // empty cell
                 }
                 Tile tile = player == PlayerMark.Player1 ? player1.Representation : player2.Representation;
-                int vPos = i - field.totalIncrease.yBot - field.initialSize.height / 2;
-                int hPos = j - field.totalIncrease.xLeft - field.initialSize.width / 2;
-                playerTileMap.SetTile(new Vector3Int(hPos, vPos, 0), tile);
+                playerTileMap.SetTile(new Vector3Int(j, i, 0), tile);
             }
         }
     }

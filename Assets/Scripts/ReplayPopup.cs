@@ -9,6 +9,11 @@ public class ReplayPopup : MonoBehaviour
     [SerializeField]
     private Button replayPopupCloseButton;
 
+    [SerializeField]
+    private Toggle timedModeToggle;
+    [SerializeField]
+    private Toggle AIToggle;
+
     void Start()
     {
         gameObject.SetActive(true);
@@ -20,7 +25,10 @@ public class ReplayPopup : MonoBehaviour
         // do ui business
         gameObject.SetActive(false);
 
+        GameOptions options = new GameOptions(timedModeToggle.isOn ? GameMode.Timed : GameMode.Difficulty, 
+            AIToggle.isOn);
+
         // send message
-        Messenger.Broadcast(GameEvents.NEW_GAME);
+        Messenger<GameOptions>.Broadcast(GameEvents.NEW_GAME, options);
     }
 }

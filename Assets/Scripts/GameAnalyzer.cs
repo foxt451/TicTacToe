@@ -41,14 +41,13 @@ public class GameAnalyzer
 
     protected Line GetLineInFullDirection((int deltaX, int deltaY) direction, (int x, int y) lastMove, bool earlyExit, int earlyExitLength)
     {
-        PlayerMark player = field.GetPlayerAtCell(lastMove.x, lastMove.y);
         // straight direction
-        (int x, int y, int length) topRightCell = GetLastCellOfLineInSemiDirection(direction, lastMove, earlyExit, earlyExitLength);
+        (int x, int y, int length) end1 = GetLastCellOfLineInSemiDirection(direction, lastMove, earlyExit, earlyExitLength);
         // reverse direction
-        (int x, int y, int length) botLeftCell = GetLastCellOfLineInSemiDirection((-direction.deltaX, -direction.deltaY),
-            lastMove, earlyExit, earlyExitLength - topRightCell.length + 1);
-        return new Line(topRightCell.length + botLeftCell.length - 1, (botLeftCell.x, botLeftCell.y), 
-            (topRightCell.x, topRightCell.y));
+        (int x, int y, int length) end2 = GetLastCellOfLineInSemiDirection((-direction.deltaX, -direction.deltaY),
+            lastMove, earlyExit, earlyExitLength - end1.length + 1);
+        return new Line(end1.length + end2.length - 1, (end2.x, end2.y), 
+            (end1.x, end1.y));
     }
 
     public GameAnalyzer(Field field, int lineLength)

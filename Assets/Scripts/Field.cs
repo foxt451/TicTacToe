@@ -30,7 +30,7 @@ public class Field : MonoBehaviour
         int yTop, int yBot) totalIncrease = (0, 0, 0, 0);
 
     public (int width, int height) initialSize;
-    public (int x, int y) lastMove;
+    public (int x, int y) stableLastMove;
 
     private List<List<PlayerMark>> matrix; // 2d field with moves, 1 - one player, 2 - another, 0 - empty cell
     // (0, 0) - lower left
@@ -70,24 +70,28 @@ public class Field : MonoBehaviour
         }
     }
 
-    public bool HasCell(int x, int y)
+    public bool HasCell(int stableX, int stableY)
     {
-        return x >= 0 && y >= 0 && x < Width && y < Height;
+        Vector2Int realMatrixPos = StablePosToMatrixPos(new Vector2Int(stableX, stableY));
+        return realMatrixPos.x >= 0 && realMatrixPos.y >= 0 && realMatrixPos.x < Width && realMatrixPos.y < Height;
     }
 
-    public PlayerMark GetPlayerAtCell(int x, int y)
+    public PlayerMark GetPlayerAtCell(int stableX, int stableY)
     {
-        return matrix[y][x];
+        Vector2Int realMatrixPos = StablePosToMatrixPos(new Vector2Int(stableX, stableY));
+        return matrix[realMatrixPos.y][realMatrixPos.x];
+     }
+
+    private bool FallsWithinGrid(Vector2Int stableMatrixPos)
+    {
+        Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
+        return realMatrixPos.x < Width && realMatrixPos.x >= 0 && realMatrixPos.y < Height & realMatrixPos.y >= 0;
     }
 
-    private bool FallsWithinGrid(Vector3Int matrixPos)
+    private bool IsCellEmpty(Vector2Int stableMatrixPos)
     {
-        return matrixPos.x < Width && matrixPos.x >= 0 && matrixPos.y < Height & matrixPos.y >= 0;
-    }
-
-    private bool IsCellEmpty(Vector3Int matrixPos)
-    {
-        if (matrix[matrixPos.y][matrixPos.x] != 0)
+        Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
+        if (matrix[realMatrixPos.y][realMatrixPos.x] != 0)
         {
             return false;
         }
@@ -95,14 +99,15 @@ public class Field : MonoBehaviour
     }
 
     // returns distance from the point to every border
-    private (int distance, FieldBorders border)[] DistanceToBorders(Vector3Int pos)
+    private (int distance, FieldBorders border)[] DistanceToBorders(Vector2Int stableMatrixPos)
     {
+        Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
         return new (int distance, FieldBorders border)[4]
         {
-            (Height - pos.y - 1, FieldBorders.Top),
-            (pos.y, FieldBorders.Bottom),
-            (Width - pos.x - 1, FieldBorders.Right),
-            (pos.x, FieldBorders.Left)
+            (Height - realMatrixPos.y - 1, FieldBorders.Top),
+            (realMatrixPos.y, FieldBorders.Bottom),
+            (Width - realMatrixPos.x - 1, FieldBorders.Right),
+            (realMatrixPos.x, FieldBorders.Left)
         };
     }
 
@@ -147,11 +152,9 @@ public class Field : MonoBehaviour
                 totalIncrease.yTop += increase;
                 break;
             case FieldBorders.Bottom:
-                lastMove.y += increase;
                 totalIncrease.yBot += increase;
                 break;
             case FieldBorders.Left:
-                lastMove.x += increase;
                 totalIncrease.xLeft += increase;
                 break;
             case FieldBorders.Right:
@@ -161,9 +164,11 @@ public class Field : MonoBehaviour
 
     }
 
-    private void UpdateSize(Vector3Int pos)
+    private void UpdateSize(Vector2Int stableMatrixPos)
     {
-        foreach (var distanceBorderPair in DistanceToBorders(pos))
+        Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
+        Debug.Log("Matrix pos in update: " + realMatrixPos);
+        foreach (var distanceBorderPair in DistanceToBorders(stableMatrixPos))
         {
             if (distanceBorderPair.distance <= expandingDistance)
             {
@@ -172,25 +177,52 @@ public class Field : MonoBehaviour
         }
     } 
 
-    public void PutPlayer(Vector3Int matrixPos, PlayerMark player)
+    private Vector2Int StablePosToMatrixPos(Vector2Int stableMatrixPos)
     {
+        return stableMatrixPos + new Vector2Int(
+            totalIncrease.xLeft + initialSize.width / 2,
+            totalIncrease.yBot + initialSize.height / 2);
+    }
+
+    private Vector2Int MatrixPosToStablePos(Vector2Int realMatrixPos)
+    {
+        return realMatrixPos - new Vector2Int(
+            totalIncrease.xLeft + initialSize.width / 2,
+            totalIncrease.yBot + initialSize.height / 2);
+    }
+
+    public (int xLeft, int xRight, int yBot, int yTop) GetStableBounds()
+    {
+        Vector2Int stableBotLeft = MatrixPosToStablePos(new Vector2Int(0, 0));
+        Vector2Int stableTopRight = MatrixPosToStablePos(new Vector2Int(Width - 1, Height - 1));
+
+        return (stableBotLeft.x, stableTopRight.x, stableBotLeft.y, stableTopRight.y);
+    }
+
+    // matrix pos stays constant forever
+    // it needs to be adjusted according to current expansion and size
+    public void PutPlayer(Vector2Int stableMatrixPos, PlayerMark player)
+    {
+        Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
+        Debug.Log("Real " + realMatrixPos);
+
         // check if the pos falls within the current field
-        if (!FallsWithinGrid(matrixPos))
+        if (!FallsWithinGrid(stableMatrixPos))
         {
             return;
         }
 
-        if (!IsCellEmpty(matrixPos))
+        if (!IsCellEmpty(stableMatrixPos))
         {
             return;
         }
 
-        matrix[matrixPos.y][matrixPos.x] = player;
+        matrix[realMatrixPos.y][realMatrixPos.x] = player;
 
-        lastMove = (matrixPos.x, matrixPos.y);
+        stableLastMove = (stableMatrixPos.x, stableMatrixPos.y);
 
         // if we approach borders, resize the field
-        UpdateSize(matrixPos);
+        UpdateSize(stableMatrixPos);
 
         Messenger.Broadcast(GameEvents.FIELD_UPDATED);
     }
