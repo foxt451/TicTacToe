@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: PlayerTile_O
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 2325831728916129856, guid: 888a6709b33455b48af3ba3640aaf204, type: 3}
+  m_Sprite: {fileID: 2266170405691456707, guid: 5d52d9cbd77057847b40d8b85e385166, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1

@@ -1,13 +1,13 @@
 fileFormatVersion: 2
-guid: 888a6709b33455b48af3ba3640aaf204
+guid: 5d52d9cbd77057847b40d8b85e385166
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8345438754890879411
-    second: PlayerTileSet_0
+      213: -8977365366229585458
+    second: XOtileset_0
   - first:
-      213: 2325831728916129856
-    second: PlayerTileSet_1
+      213: 2266170405691456707
+    second: XOtileset_1
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -52,7 +52,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 128
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -131,13 +131,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: PlayerTileSet_0
+      name: XOtileset_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 32
-        height: 32
+        width: 128
+        height: 128
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -145,20 +145,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d4e63ff1bab0f2c80800000000000000
-      internalID: -8345438754890879411
+      spriteID: ec1bdf673cdf96380800000000000000
+      internalID: -8977365366229585458
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: PlayerTileSet_1
+      name: XOtileset_1
       rect:
         serializedVersion: 2
-        x: 32
+        x: 128
         y: 0
-        width: 32
-        height: 32
+        width: 128
+        height: 128
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -166,8 +166,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 048e06972a3074020800000000000000
-      internalID: 2325831728916129856
+      spriteID: 3ccfdbf2afd037f10800000000000000
+      internalID: 2266170405691456707
       vertices: []
       indices: 
       edges: []
