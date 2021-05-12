@@ -7,9 +7,15 @@ public class GameController : MonoBehaviour
 {
     private PlayerMark movingPlayer = PlayerMark.Player1;
 
-    public static GameState gameState;
+    public GameState gameState;
+
+    public static GameController controller;
     private GameMode mode;
     private bool AI;
+
+
+    private float totalSeconsTime;
+    private (int player1, int player2) score;
     
 
     [SerializeField]
@@ -23,25 +29,46 @@ public class GameController : MonoBehaviour
 
     private void Awake()
     {
+        controller = this;
+
         difficultyGameAnalyzer = new DifficultyGameAnalyzer(field, fullLineLength);
         timedGameAnalyzer = new TimedGameAnalyzer(field, fullLineLength);
-
-        Messenger<GameOptions>.AddListener(GameEvents.NEW_GAME, StartNewGame);
     }
 
-    private void OnDestroy()
+    private void Update()
     {
-        Messenger<GameOptions>.RemoveListener(GameEvents.NEW_GAME, StartNewGame);
+        if (gameState == GameState.INGAME && mode == GameMode.Timed)
+        {
+            totalSeconsTime -= Time.deltaTime;
+        }
     }
 
-    private void StartNewGame(GameOptions options)
+
+    private const string fieldDataName = "field";
+    private const string optionsDataName = "options";
+    private const string timeDataName = "time";
+    private const string scoreDataName = "score";
+
+    public (GameOptions options, Field field) GetGameData() => (new GameOptions(mode, AI, totalSeconsTime, score), field);
+
+    public void StartNewGame(GameOptions options, FieldOptions field = null)
     {
         gameState = GameState.INGAME;
 
         mode = options.mode;
         AI = options.AI;
 
-        field.Clear();
+        score = options.initialScore;
+        totalSeconsTime = options.timeLeft;
+
+        if (field == null)
+        {
+            this.field.Clear();
+        }
+        else
+        {
+            this.field.CopyField(field);
+        }
     }
 
     private void Start()
@@ -64,7 +91,8 @@ public class GameController : MonoBehaviour
         } 
         else
         {
-            Debug.Log("Score: " + timedGameAnalyzer.GetGameScore());
+            var deltaScore = timedGameAnalyzer.GetGameScore();
+            score = (score.player1 + deltaScore.player1Score, score.player2 + deltaScore.player2Score);
         }
     }
 }

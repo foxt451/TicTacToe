@@ -41,6 +41,29 @@ public class Field : MonoBehaviour
         initialSize = (width, height);
     }
 
+    public FieldOptions GetFieldData()
+    {
+        FieldOptions options = new FieldOptions();
+        options.matrix = matrix;
+        options.stableLastMove = stableLastMove;
+        options.initialSize = initialSize;
+        options.totalIncrease = totalIncrease;
+        options.expandingDistance = expandingDistance;
+        options.height = height;
+        options.width = width;
+        return options;
+    }
+
+    public void CopyField(FieldOptions field)
+    {
+        matrix = field.matrix;
+        height = field.height;
+        width = field.width;
+        expandingDistance = field.expandingDistance;
+        totalIncrease = field.totalIncrease;
+        initialSize = field.initialSize;
+        stableLastMove = field.stableLastMove;
+    }
     
 
     private void Start()

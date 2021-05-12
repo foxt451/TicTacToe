@@ -14,21 +14,25 @@ public class ReplayPopup : MonoBehaviour
     [SerializeField]
     private Toggle AIToggle;
 
-    void Start()
+    public void Show(bool canClose)
     {
         gameObject.SetActive(true);
-        replayPopupCloseButton.gameObject.SetActive(false);
+        replayPopupCloseButton.gameObject.SetActive(canClose);
+    }
+
+    public void Hide()
+    {
+        gameObject.SetActive(false);
     }
 
     public void StartGame()
     {
-        // do ui business
-        gameObject.SetActive(false);
+        Hide();
 
         GameOptions options = new GameOptions(timedModeToggle.isOn ? GameMode.Timed : GameMode.Difficulty, 
-            AIToggle.isOn);
+            AIToggle.isOn, 15, (0, 0));
 
         // send message
-        Messenger<GameOptions>.Broadcast(GameEvents.NEW_GAME, options);
+        GameController.controller.StartNewGame(options);
     }
 }

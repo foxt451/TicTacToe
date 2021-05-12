@@ -82,7 +82,7 @@ public class FieldGrid : MonoBehaviour
 
     public void OnMouseDown()
     {
-        if (GameController.gameState != GameState.INGAME)
+        if (GameController.controller.gameState != GameState.INGAME)
         {
             return;
         }
