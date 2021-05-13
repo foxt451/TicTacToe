@@ -190,7 +190,6 @@ public class Field : MonoBehaviour
     private void UpdateSize(Vector2Int stableMatrixPos)
     {
         Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
-        Debug.Log("Matrix pos in update: " + realMatrixPos);
         foreach (var distanceBorderPair in DistanceToBorders(stableMatrixPos))
         {
             if (distanceBorderPair.distance <= expandingDistance)
@@ -227,7 +226,6 @@ public class Field : MonoBehaviour
     public void PutPlayer(Vector2Int stableMatrixPos, PlayerMark player)
     {
         Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
-        Debug.Log("Real " + realMatrixPos);
 
         // check if the pos falls within the current field
         if (!FallsWithinGrid(stableMatrixPos))

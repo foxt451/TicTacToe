@@ -39,9 +39,6 @@ public class GameController : MonoBehaviour
     private void Awake()
     {
         controller = this;
-
-        difficultyGameAnalyzer = new DifficultyGameAnalyzer(field, fullLineLength);
-        timedGameAnalyzer = new TimedGameAnalyzer(field, fullLineLength);
     }
 
     private void Update()
@@ -70,15 +67,18 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public (GameOptions options, Field field) GetGameData() => (new GameOptions(mode, AI, totalSecondsTime, score), field);
+    public (GameOptions options, Field field, TimedGameAnalyzer timedAnalyzer) GetGameData() => (new GameOptions(mode,
+        AI, totalSecondsTime, score, movingPlayer), field, timedGameAnalyzer);
 
-    public void StartNewGame(GameOptions options, FieldOptions field = null)
+    public void StartNewGame(GameOptions options, FieldOptions field = null, TimedGameAnalyzerInfo timedAnalyzerInfo = null)
     {
         mode = options.mode;
         AI = options.AI;
 
         score = options.initialScore;
         totalSecondsTime = options.timeLeft;
+
+        movingPlayer = options.movingPlayer;
 
         if (field == null)
         {
@@ -87,6 +87,14 @@ public class GameController : MonoBehaviour
         else
         {
             this.field.CopyField(field);
+        }
+
+        difficultyGameAnalyzer = new DifficultyGameAnalyzer(this.field, fullLineLength);
+        timedGameAnalyzer = new TimedGameAnalyzer(this.field, fullLineLength);
+
+        if (timedAnalyzerInfo != null)
+        {
+            timedGameAnalyzer.Reconstruct(timedAnalyzerInfo);
         }
 
         GameState = GameState.INGAME;
@@ -112,7 +120,9 @@ public class GameController : MonoBehaviour
         } 
         else
         {
+            
             var (player1Score, player2Score) = timedGameAnalyzer.GetGameScore();
+            Debug.Log(player1Score + " " + player2Score);
             score = (score.player1 + player1Score, score.player2 + player2Score);
         }
     }

@@ -24,6 +24,7 @@ public class DataManager : MonoBehaviour
 
     private const string optionsSerializeName = "options";
     private const string fieldSerializeName = "field";
+    private const string timedAnalyzerSerializeName = "timedAnalyzer";
 
     public bool LoadFromSlot(int slot)
     {
@@ -37,7 +38,7 @@ public class DataManager : MonoBehaviour
         {
             var options = formatter.Deserialize(stream) as Dictionary<string, object>;
             GameController.controller.StartNewGame((GameOptions)options[optionsSerializeName],
-                (FieldOptions)options[fieldSerializeName]);
+                (FieldOptions)options[fieldSerializeName], (TimedGameAnalyzerInfo)options[timedAnalyzerSerializeName]);
         }
         return true;
     }
@@ -53,11 +54,12 @@ public class DataManager : MonoBehaviour
         BinaryFormatter formatter = new BinaryFormatter();
         using (FileStream stream = File.Create(path))
         {
-            (GameOptions options, Field field) = GameController.controller.GetGameData();
+            (GameOptions options, Field field, TimedGameAnalyzer timedAnalyzer) = GameController.controller.GetGameData();
             Dictionary<string, object> data = new Dictionary<string, object>()
             {
                 { optionsSerializeName, options},
-                { fieldSerializeName, field.GetFieldData() }
+                { fieldSerializeName, field.GetFieldData() },
+                { timedAnalyzerSerializeName, timedAnalyzer.GetSerializableInfo()}
             };
             formatter.Serialize(stream, data);
         }

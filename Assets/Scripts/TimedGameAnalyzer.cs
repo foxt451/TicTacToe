@@ -7,11 +7,26 @@ using UnityEngine;
 
 public class TimedGameAnalyzer : GameAnalyzer
 {
+
+    // TODO
+    // add game analyzer serialization
     public TimedGameAnalyzer(Field field, int lineLength) : base(field, lineLength)
     {
     }
 
     private HashSet<(int x, int y)> accountedCells = new HashSet<(int x, int y)>();
+
+    public TimedGameAnalyzerInfo GetSerializableInfo()
+    {
+        TimedGameAnalyzerInfo info = new TimedGameAnalyzerInfo();
+        info.accountedCells = accountedCells;
+        return info;
+    }
+
+    public void Reconstruct(TimedGameAnalyzerInfo info)
+    {
+        accountedCells = info.accountedCells;
+    }
 
 
     // returns Defeated if we have a row of 'lineLength'
