@@ -70,26 +70,24 @@ public class Field : MonoBehaviour
     private void Start()
     {
         // initial field matrix
-        matrix = new List<List<PlayerMark>>();
-        for (int i = 0; i < Height; i++)
-        {
-            matrix.Add(new List<PlayerMark>());
-            for (int j = 0; j < Width; j++) 
-            {
-                matrix[i].Add(PlayerMark.Empty);
-            }
-        }
+        Reset();
 
         Messenger.Broadcast(GameEvents.FIELD_UPDATED);
     }
 
-    public void Clear()
+    public void Reset()
     {
-        foreach(var row in matrix)
+        Width = initialSize.width;
+        Height = initialSize.height;
+        stableLastMove = (0, 0);
+        totalIncrease = (0, 0, 0, 0);
+        matrix = new List<List<PlayerMark>>();
+        for (int i = 0; i < Height; i++)
         {
-            for (int i = 0; i < row.Count; i++)
+            matrix.Add(new List<PlayerMark>());
+            for (int j = 0; j < Width; j++)
             {
-                row[i] = PlayerMark.Empty;
+                matrix[i].Add(PlayerMark.Empty);
             }
         }
         Messenger.Broadcast(GameEvents.FIELD_UPDATED);

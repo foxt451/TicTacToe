@@ -82,7 +82,7 @@ public class GameController : MonoBehaviour
 
         if (field == null)
         {
-            this.field.Clear();
+            this.field.Reset();
         }
         else
         {
