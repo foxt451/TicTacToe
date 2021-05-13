@@ -58,7 +58,16 @@ public class GameController : MonoBehaviour
 
     void FinishGame()
     {
-        Debug.Log("OVER");
+        GameState = GameState.PAUSED;
+        if (mode == GameMode.Difficulty)
+        {
+            Messenger<PlayerMark>.Broadcast(GameEvents.GAME_FINISHED, movingPlayer == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1);
+        }
+        else
+        {
+            Messenger<PlayerMark>.Broadcast(GameEvents.GAME_FINISHED,
+                score.player1 > score.player2 ? PlayerMark.Player1 : (score.player1 == score.player2 ? PlayerMark.Empty : PlayerMark.Player2));
+        }
     }
 
     public (GameOptions options, Field field) GetGameData() => (new GameOptions(mode, AI, totalSecondsTime, score), field);
@@ -98,7 +107,7 @@ public class GameController : MonoBehaviour
         {
             if (difficultyGameAnalyzer.GetGameStatus() == DifficultyGameStatus.Defeated)
             {
-                Debug.Log("The game has ended!");
+                FinishGame();
             }
         } 
         else

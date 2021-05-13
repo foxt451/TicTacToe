@@ -17,6 +17,9 @@ public class UIController : MonoBehaviour
     [SerializeField]
     private TimedStats timedStats;
 
+    [SerializeField]
+    private EndGameInfo endInfo;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,11 +29,18 @@ public class UIController : MonoBehaviour
     private void Awake()
     {
         Messenger<GameState>.AddListener(GameEvents.GAMESTATE_CHANGED, OnGameStateChanged);
+        Messenger<PlayerMark>.AddListener(GameEvents.GAME_FINISHED, OnEndGame);
     }
 
     private void OnDestroy()
     {
         Messenger<GameState>.RemoveListener(GameEvents.GAMESTATE_CHANGED, OnGameStateChanged);
+        Messenger<PlayerMark>.RemoveListener(GameEvents.GAME_FINISHED, OnEndGame);
+    }
+
+    void OnEndGame(PlayerMark playerToWin)
+    {
+        endInfo.DisplayEndGameInfo(playerToWin);
     }
 
     void OnGameStateChanged(GameState state)
@@ -46,6 +56,10 @@ public class UIController : MonoBehaviour
             {
                 timedStats.Show();
             }
+            else
+            {
+                timedStats.Hide();
+            }
         }
     }
 
@@ -56,6 +70,7 @@ public class UIController : MonoBehaviour
         replayPopup.Show(false);
         replayButton.gameObject.SetActive(false);
         timedStats.Hide();
+        endInfo.Hide();
     }
 
     public void ShowReplayPopup()
