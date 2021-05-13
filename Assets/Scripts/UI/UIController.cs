@@ -14,6 +14,9 @@ public class UIController : MonoBehaviour
     [SerializeField]
     private Button replayButton;
 
+    [SerializeField]
+    private TimedStats timedStats;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,11 +35,17 @@ public class UIController : MonoBehaviour
 
     void OnGameStateChanged(GameState state)
     {
+        Debug.Log(1);
         if (state == GameState.INGAME)
         {
             savePopup.Hide();
             replayPopup.Hide();
             replayButton.gameObject.SetActive(true);
+
+            if (GameController.controller.mode == GameMode.Timed)
+            {
+                timedStats.Show();
+            }
         }
     }
 
@@ -46,6 +55,7 @@ public class UIController : MonoBehaviour
         savePopup.Hide();
         replayPopup.Show(false);
         replayButton.gameObject.SetActive(false);
+        timedStats.Hide();
     }
 
     public void ShowReplayPopup()

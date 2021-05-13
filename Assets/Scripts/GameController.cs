@@ -19,12 +19,12 @@ public class GameController : MonoBehaviour
     }
 
     public static GameController controller;
-    private GameMode mode;
+    public GameMode mode;
     private bool AI;
 
 
-    private float totalSeconsTime;
-    private (int player1, int player2) score;
+    public float totalSecondsTime;
+    public (int player1, int player2) score;
     
 
     [SerializeField]
@@ -48,21 +48,28 @@ public class GameController : MonoBehaviour
     {
         if (GameState == GameState.INGAME && mode == GameMode.Timed)
         {
-            totalSeconsTime -= Time.deltaTime;
+            totalSecondsTime -= Time.deltaTime;
+            if (totalSecondsTime <= 0)
+            {
+                FinishGame();
+            }
         }
     }
 
-    public (GameOptions options, Field field) GetGameData() => (new GameOptions(mode, AI, totalSeconsTime, score), field);
+    void FinishGame()
+    {
+        Debug.Log("OVER");
+    }
+
+    public (GameOptions options, Field field) GetGameData() => (new GameOptions(mode, AI, totalSecondsTime, score), field);
 
     public void StartNewGame(GameOptions options, FieldOptions field = null)
     {
-        GameState = GameState.INGAME;
-
         mode = options.mode;
         AI = options.AI;
 
         score = options.initialScore;
-        totalSeconsTime = options.timeLeft;
+        totalSecondsTime = options.timeLeft;
 
         if (field == null)
         {
@@ -72,6 +79,8 @@ public class GameController : MonoBehaviour
         {
             this.field.CopyField(field);
         }
+
+        GameState = GameState.INGAME;
     }
 
     private void Start()
