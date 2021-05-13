@@ -7,7 +7,16 @@ public class GameController : MonoBehaviour
 {
     private PlayerMark movingPlayer = PlayerMark.Player1;
 
-    public GameState gameState;
+    private GameState gameState;
+    public GameState GameState
+    {
+        get => gameState;
+        set
+        {
+            gameState = value;
+            Messenger<GameState>.Broadcast(GameEvents.GAMESTATE_CHANGED, gameState);
+        }
+    }
 
     public static GameController controller;
     private GameMode mode;
@@ -37,23 +46,17 @@ public class GameController : MonoBehaviour
 
     private void Update()
     {
-        if (gameState == GameState.INGAME && mode == GameMode.Timed)
+        if (GameState == GameState.INGAME && mode == GameMode.Timed)
         {
             totalSeconsTime -= Time.deltaTime;
         }
     }
 
-
-    private const string fieldDataName = "field";
-    private const string optionsDataName = "options";
-    private const string timeDataName = "time";
-    private const string scoreDataName = "score";
-
     public (GameOptions options, Field field) GetGameData() => (new GameOptions(mode, AI, totalSeconsTime, score), field);
 
     public void StartNewGame(GameOptions options, FieldOptions field = null)
     {
-        gameState = GameState.INGAME;
+        GameState = GameState.INGAME;
 
         mode = options.mode;
         AI = options.AI;
@@ -73,7 +76,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        gameState = GameState.PREGAME;
+        GameState = GameState.PREGAME;
     }
 
     public void Move(Vector2Int stableMatrixPos)
@@ -91,8 +94,8 @@ public class GameController : MonoBehaviour
         } 
         else
         {
-            var deltaScore = timedGameAnalyzer.GetGameScore();
-            score = (score.player1 + deltaScore.player1Score, score.player2 + deltaScore.player2Score);
+            var (player1Score, player2Score) = timedGameAnalyzer.GetGameScore();
+            score = (score.player1 + player1Score, score.player2 + player2Score);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System;
 
 public class DataManager : MonoBehaviour
 {
@@ -24,9 +25,13 @@ public class DataManager : MonoBehaviour
     private const string optionsSerializeName = "options";
     private const string fieldSerializeName = "field";
 
-    public void LoadFromSlot(int slot)
+    public bool LoadFromSlot(int slot)
     {
         string path = ConstructSlotPath(slot);
+        if (!File.Exists(path))
+        {
+            return false;
+        }
         BinaryFormatter formatter = new BinaryFormatter();
         using (FileStream stream = File.OpenRead(path))
         {
@@ -34,6 +39,12 @@ public class DataManager : MonoBehaviour
             GameController.controller.StartNewGame((GameOptions)options[optionsSerializeName],
                 (FieldOptions)options[fieldSerializeName]);
         }
+        return true;
+    }
+
+    public bool HasSavesInSlot(int slot)
+    {
+        return File.Exists(ConstructSlotPath(slot));
     }
 
     public void SaveIntoSlot(int slot)
@@ -50,5 +61,11 @@ public class DataManager : MonoBehaviour
             };
             formatter.Serialize(stream, data);
         }
+    }
+
+    public DateTime GetLastModified(int slot)
+    {
+        string path = ConstructSlotPath(slot);
+        return File.GetLastWriteTime(path);
     }
 }

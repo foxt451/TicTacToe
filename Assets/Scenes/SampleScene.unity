@@ -287,7 +287,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1c3592b4c8fbbd4c8e003c3944aa0fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameState: 0
   field: {fileID: 662252282}
   fullLineLength: 3
 --- !u!4 &143966544
@@ -3428,7 +3427,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1675303222
 RectTransform:
   m_ObjectHideFlags: 0

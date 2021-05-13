@@ -7,6 +7,16 @@ public class SavePopup : MonoBehaviour
 {
     [SerializeField]
     private Toggle[] slotToggles;
+    [SerializeField]
+    private Text[] toggleDateTexts;
+
+    private void Start()
+    {
+        for (int i = 0; i < slotToggles.Length; i++)
+        {
+            UpdateDateForSlot(i);
+        }
+    }
 
     public void Show()
     {
@@ -24,15 +34,32 @@ public class SavePopup : MonoBehaviour
         {
             if (slotToggles[i].isOn)
             {
-                return i + 1;
+                return i;
             }
         }
         return 0;
     }
 
+    void UpdateDateForSlot(int slot)
+    {
+        string text;
+        if (DataManager.manager.HasSavesInSlot(slot))
+        {
+            var dateTime = DataManager.manager.GetLastModified(slot);
+            text = dateTime.ToString("dd/MM/yy HH:mm");
+        }
+        else
+        {
+            text = "empty";
+        }
+        toggleDateTexts[slot].text = text;
+    }
+
     public void Save()
     {
-        DataManager.manager.SaveIntoSlot(GetSelectedSlot());
+        int selected = GetSelectedSlot();
+        DataManager.manager.SaveIntoSlot(selected);
+        UpdateDateForSlot(selected);
     }
 
     public void Load()

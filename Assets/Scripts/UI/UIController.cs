@@ -17,6 +17,25 @@ public class UIController : MonoBehaviour
         InitialSetup();
     }
 
+    private void Awake()
+    {
+        Messenger<GameState>.AddListener(GameEvents.GAMESTATE_CHANGED, OnGameStateChanged);
+    }
+
+    private void OnDestroy()
+    {
+        Messenger<GameState>.RemoveListener(GameEvents.GAMESTATE_CHANGED, OnGameStateChanged);
+    }
+
+    void OnGameStateChanged(GameState state)
+    {
+        if (state == GameState.INGAME)
+        {
+            savePopup.Hide();
+            replayPopup.Hide();
+        }
+    }
+
 
     void InitialSetup()
     {
@@ -26,9 +45,9 @@ public class UIController : MonoBehaviour
     public void ShowSavePopup()
     {
         savePopup.Show();
-        if (GameController.controller.gameState == GameState.INGAME)
+        if (GameController.controller.GameState == GameState.INGAME)
         {
-            GameController.controller.gameState = GameState.PAUSED;
+            GameController.controller.GameState = GameState.PAUSED;
         }
         else
         {
@@ -39,13 +58,13 @@ public class UIController : MonoBehaviour
     public void CloseSavePopup()
     {
         savePopup.Hide();
-        if (GameController.controller.gameState == GameState.PREGAME)
+        if (GameController.controller.GameState == GameState.PREGAME)
         {
             replayPopup.Show(false);
         }
-        else
+        else if (GameController.controller.GameState == GameState.PAUSED)
         {
-            GameController.controller.gameState = GameState.INGAME;
+            GameController.controller.GameState = GameState.INGAME;
         }
     }
 }

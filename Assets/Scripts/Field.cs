@@ -63,6 +63,7 @@ public class Field : MonoBehaviour
         totalIncrease = field.totalIncrease;
         initialSize = field.initialSize;
         stableLastMove = field.stableLastMove;
+        Messenger.Broadcast(GameEvents.FIELD_UPDATED);
     }
     
 
@@ -91,6 +92,7 @@ public class Field : MonoBehaviour
                 row[i] = PlayerMark.Empty;
             }
         }
+        Messenger.Broadcast(GameEvents.FIELD_UPDATED);
     }
 
     public bool HasCell(int stableX, int stableY)
