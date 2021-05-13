@@ -11,6 +11,9 @@ public class UIController : MonoBehaviour
     [SerializeField]
     private SavePopup savePopup;
 
+    [SerializeField]
+    private Button replayButton;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -33,14 +36,36 @@ public class UIController : MonoBehaviour
         {
             savePopup.Hide();
             replayPopup.Hide();
+            replayButton.gameObject.SetActive(true);
         }
     }
 
 
     void InitialSetup()
     {
-        replayPopup.Show(false);
         savePopup.Hide();
+        replayPopup.Show(false);
+        replayButton.gameObject.SetActive(false);
+    }
+
+    public void ShowReplayPopup()
+    {
+        savePopup.Hide();
+        if (GameController.controller.GameState == GameState.PREGAME)
+        {
+            replayPopup.Show(false);
+        }
+        else
+        {
+            replayPopup.Show(true);
+            GameController.controller.GameState = GameState.PAUSED;
+        }
+    }
+
+    public void CloseReplayPopup()
+    {
+        replayPopup.Hide();
+        GameController.controller.GameState = GameState.INGAME;
     }
 
     public void ShowSavePopup()
