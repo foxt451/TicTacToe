@@ -45,10 +45,14 @@ public class GameController : MonoBehaviour
     {
         if (GameState == GameState.INGAME && mode == GameMode.Timed)
         {
-            totalSecondsTime -= Time.deltaTime;
-            if (totalSecondsTime <= 0)
+            if ((movingPlayer == PlayerMark.Player1 && score.player1 <= score.player2) ||
+                (movingPlayer == PlayerMark.Player2 && score.player2 <= score.player1))
             {
-                FinishGame();
+                totalSecondsTime -= Time.deltaTime;
+                if (totalSecondsTime <= 0)
+                {
+                    FinishGame();
+                }
             }
         }
     }
