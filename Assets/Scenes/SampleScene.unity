@@ -3427,7 +3427,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1675303222
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3467,6 +3467,10 @@ MonoBehaviour:
   - {fileID: 926354885}
   - {fileID: 418260026}
   - {fileID: 2138053749}
+  toggleDateTexts:
+  - {fileID: 1959818087}
+  - {fileID: 798108079}
+  - {fileID: 2038950068}
 --- !u!114 &1675303224
 MonoBehaviour:
   m_ObjectHideFlags: 0

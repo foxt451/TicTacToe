@@ -40,6 +40,7 @@ public class UIController : MonoBehaviour
     void InitialSetup()
     {
         replayPopup.Show(false);
+        savePopup.Hide();
     }
 
     public void ShowSavePopup()
