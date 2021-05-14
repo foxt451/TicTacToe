@@ -129,24 +129,6 @@ public class GameController : MonoBehaviour
         GameState = GameState.PREGAME;
     }
 
-    public void MoveWithPlayer(Vector2Int stableMatrixPos)
-    {
-        if (field.CellCompliesWithRules(stableMatrixPos))
-        {
-            if (!isAIenabled || movingPlayer != aiPlayer)
-            {
-                field.PutPlayer(stableMatrixPos, movingPlayer);
-
-                AnalyzeField();
-
-                if (!isGameOver)
-                {
-                    NextPlayer();
-                }
-            }
-        }
-    }
-
     private void NextPlayer()
     {
         movingPlayer = movingPlayer == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1;
@@ -156,11 +138,42 @@ public class GameController : MonoBehaviour
         }
     }
 
+    private void Move(Vector2Int stableMatrixPos)
+    {
+        field.PutPlayer(stableMatrixPos, movingPlayer);
+        AnalyzeField();
+        if (!isGameOver)
+        {
+            NextPlayer();
+        }
+    }
+
+    public void MoveWithPlayer(Vector2Int stableMatrixPos)
+    {
+        if (field.CellCompliesWithRules(stableMatrixPos))
+        {
+            if (!isAIenabled || movingPlayer != aiPlayer)
+            {
+                Move(stableMatrixPos);
+            }
+        }
+    }
+
     private void MoveWithAI()
     {
-        var pos = ai.GetBestPosition();
-        field.PutPlayer(pos, aiPlayer);
-        NextPlayer();
+        Debug.Log("MOVING WITH AI");
+        GameAnalyzer analyzerToUse;
+        if (mode == GameMode.Difficulty)
+        {
+            analyzerToUse = difficultyGameAnalyzer;
+        }
+        else
+        {
+            analyzerToUse = timedGameAnalyzer;
+        }
+        var pos = ai.GetBestPosition(movingPlayer, mode, analyzerToUse);
+        Debug.Log("best ai move " + pos);
+        Move(pos);
     }
 
     void AnalyzeField()

@@ -42,10 +42,36 @@ public class Field : MonoBehaviour
         initialSize = (width, height);
     }
 
+    public bool IsCloserThanDistanceToOthers((int x, int y) stablePos, int distance)
+    {
+        (int x, int y) minDelta = (-distance, -distance);
+        (int x, int y) maxDelta = (distance, distance);
+
+        var bounds = GetStableBounds();
+        for (int i = Mathf.Max(bounds.xLeft, stablePos.x + minDelta.x);
+            i <= Mathf.Min(bounds.xRight, stablePos.x + maxDelta.x); i++)
+        {
+            for (int j = Mathf.Max(bounds.yBot, stablePos.y + minDelta.y);
+                j <= Mathf.Min(bounds.yTop, stablePos.y + maxDelta.y); j++)
+            {
+                if (GetPlayerAtCell(i, j) != PlayerMark.Empty)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public PlayerMark GetLastPlayerToMove()
+    {
+        return GetPlayerAtCell(stableLastMove.x, stableLastMove.y);
+    }
+
     public FieldOptions GetFieldData()
     {
         FieldOptions options = new FieldOptions();
-        options.matrix = matrix;
+        options.matrix = HelperFunctions.DeepMatrixCopy(matrix);
         options.stableLastMove = stableLastMove;
         options.initialSize = initialSize;
         options.totalIncrease = totalIncrease;
@@ -57,7 +83,7 @@ public class Field : MonoBehaviour
 
     public void CopyField(FieldOptions field)
     {
-        matrix = field.matrix;
+        matrix = HelperFunctions.DeepMatrixCopy(field.matrix);
         height = field.height;
         width = field.width;
         expandingDistance = field.expandingDistance;

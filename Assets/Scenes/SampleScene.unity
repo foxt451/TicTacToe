@@ -461,12 +461,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1c3592b4c8fbbd4c8e003c3944aa0fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mode: 0
-  totalSecondsTime: 0
   field: {fileID: 662252282}
   fullLineLength: 3
   ai: {fileID: 1948843420}
-  aiPlayer: 0
+  aiPlayer: 1
 --- !u!4 &143966544
 Transform:
   m_ObjectHideFlags: 0

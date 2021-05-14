@@ -14,6 +14,11 @@ public class DifficultyGameAnalyzer: GameAnalyzer
     // returns Defeated if we have a row of 'lineLength'
     public DifficultyGameStatus GetGameStatus()
     {
+        // when field is initially empty
+        // the function returns Defeat
+        // but it's useful
+        // because this way AI moves in (0, 0)
+
         foreach (var direction in directions)
         {
             Line line = GetLineInFullDirection(direction, field.stableLastMove, true, lineLength);

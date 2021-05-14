@@ -19,13 +19,13 @@ public class TimedGameAnalyzer : GameAnalyzer
     public TimedGameAnalyzerInfo GetSerializableInfo()
     {
         TimedGameAnalyzerInfo info = new TimedGameAnalyzerInfo();
-        info.accountedCells = accountedCells;
+        info.accountedCells = new HashSet<(int x, int y)>(accountedCells);
         return info;
     }
 
     public void Reconstruct(TimedGameAnalyzerInfo info)
     {
-        accountedCells = info.accountedCells;
+        accountedCells = new HashSet<(int x, int y)>(info.accountedCells);
     }
 
 
