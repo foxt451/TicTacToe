@@ -65,7 +65,7 @@ public class ReplayPopup : MonoBehaviour
         Hide();
 
         GameOptions options = new GameOptions(timedModeToggle.isOn ? GameMode.Timed : GameMode.Difficulty, 
-            AIToggle.isOn, timeSection.GetTotalSeconds(), (0, 0), PlayerMark.Player1);
+            AIToggle.isOn, timeSection.GetTotalSeconds(), (0, 0), PlayerMark.Player1, false);
 
         // send message
         GameController.controller.StartNewGame(options);

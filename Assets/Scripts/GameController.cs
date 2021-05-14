@@ -36,6 +36,8 @@ public class GameController : MonoBehaviour
     private DifficultyGameAnalyzer difficultyGameAnalyzer;
     private TimedGameAnalyzer timedGameAnalyzer;
 
+    public bool isGameOver = false;
+
     private void Awake()
     {
         controller = this;
@@ -59,6 +61,7 @@ public class GameController : MonoBehaviour
 
     void FinishGame()
     {
+        isGameOver = true;
         GameState = GameState.PAUSED;
         if (mode == GameMode.Difficulty)
         {
@@ -72,7 +75,7 @@ public class GameController : MonoBehaviour
     }
 
     public (GameOptions options, Field field, TimedGameAnalyzer timedAnalyzer) GetGameData() => (new GameOptions(mode,
-        AI, totalSecondsTime, score, movingPlayer), field, timedGameAnalyzer);
+        AI, totalSecondsTime, score, movingPlayer, isGameOver), field, timedGameAnalyzer);
 
     public void StartNewGame(GameOptions options, FieldOptions field = null, TimedGameAnalyzerInfo timedAnalyzerInfo = null)
     {
@@ -102,6 +105,11 @@ public class GameController : MonoBehaviour
         }
 
         GameState = GameState.INGAME;
+        isGameOver = options.isGameOver;
+        if (options.isGameOver)
+        {
+            FinishGame();
+        }
     }
 
     private void Start()
@@ -114,17 +122,21 @@ public class GameController : MonoBehaviour
         field.PutPlayer(stableMatrixPos, movingPlayer);
         movingPlayer = movingPlayer == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1;
 
-        // analyze field
+        AnalyzeField();
+    }
+
+    void AnalyzeField()
+    {
         if (mode == GameMode.Difficulty)
         {
             if (difficultyGameAnalyzer.GetGameStatus() == DifficultyGameStatus.Defeated)
             {
                 FinishGame();
             }
-        } 
+        }
         else
         {
-            
+
             var (player1Score, player2Score) = timedGameAnalyzer.GetGameScore();
             Debug.Log(player1Score + " " + player2Score);
             score = (score.player1 + player1Score, score.player2 + player2Score);

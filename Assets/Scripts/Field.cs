@@ -30,6 +30,7 @@ public class Field : MonoBehaviour
         int yTop, int yBot) totalIncrease = (0, 0, 0, 0);
 
     public (int width, int height) initialSize;
+
     public (int x, int y) stableLastMove;
 
     private List<List<PlayerMark>> matrix; // 2d field with moves, 1 - one player, 2 - another, 0 - empty cell

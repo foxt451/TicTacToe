@@ -14,15 +14,17 @@ public class GameOptions
     public (int player1, int player2) initialScore;
 
     public PlayerMark movingPlayer;
+    public bool isGameOver;
 
     public GameOptions(GameMode mode, bool AI, float timeLeft, (int player1, int player2) initialScore, 
-        PlayerMark movingPlayer)
+        PlayerMark movingPlayer, bool isGameOver)
     {
         this.mode = mode;
         this.AI = AI;
         this.timeLeft = timeLeft;
         this.initialScore = initialScore;
         this.movingPlayer = movingPlayer;
+        this.isGameOver = isGameOver;
     }
 }
 
