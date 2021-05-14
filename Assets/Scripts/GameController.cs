@@ -19,11 +19,13 @@ public class GameController : MonoBehaviour
     }
 
     public static GameController controller;
+    [NonSerialized]
     public GameMode mode;
-    private bool AI;
+    private bool isAIenabled;
 
-
+    [NonSerialized]
     public float totalSecondsTime;
+    [NonSerialized]
     public (int player1, int player2) score;
     
 
@@ -36,7 +38,12 @@ public class GameController : MonoBehaviour
     private DifficultyGameAnalyzer difficultyGameAnalyzer;
     private TimedGameAnalyzer timedGameAnalyzer;
 
-    public bool isGameOver = false;
+    private bool isGameOver = false;
+
+    [SerializeField]
+    private MinimaxAI ai;
+    [SerializeField]
+    private PlayerMark aiPlayer;
 
     private void Awake()
     {
@@ -65,7 +72,7 @@ public class GameController : MonoBehaviour
         GameState = GameState.PAUSED;
         if (mode == GameMode.Difficulty)
         {
-            Messenger<PlayerMark>.Broadcast(GameEvents.GAME_FINISHED, movingPlayer == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1);
+            Messenger<PlayerMark>.Broadcast(GameEvents.GAME_FINISHED, movingPlayer);
         }
         else
         {
@@ -75,12 +82,12 @@ public class GameController : MonoBehaviour
     }
 
     public (GameOptions options, Field field, TimedGameAnalyzer timedAnalyzer) GetGameData() => (new GameOptions(mode,
-        AI, totalSecondsTime, score, movingPlayer, isGameOver), field, timedGameAnalyzer);
+        isAIenabled, totalSecondsTime, score, movingPlayer, isGameOver), field, timedGameAnalyzer);
 
     public void StartNewGame(GameOptions options, FieldOptions field = null, TimedGameAnalyzerInfo timedAnalyzerInfo = null)
     {
         mode = options.mode;
-        AI = options.AI;
+        isAIenabled = options.AI;
 
         score = options.initialScore;
         totalSecondsTime = options.timeLeft;
@@ -110,6 +117,11 @@ public class GameController : MonoBehaviour
         {
             FinishGame();
         }
+
+        if (isAIenabled && movingPlayer == aiPlayer)
+        {
+            MoveWithAI();
+        }
     }
 
     private void Start()
@@ -117,12 +129,38 @@ public class GameController : MonoBehaviour
         GameState = GameState.PREGAME;
     }
 
-    public void Move(Vector2Int stableMatrixPos)
+    public void MoveWithPlayer(Vector2Int stableMatrixPos)
     {
-        field.PutPlayer(stableMatrixPos, movingPlayer);
-        movingPlayer = movingPlayer == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1;
+        if (field.CellCompliesWithRules(stableMatrixPos))
+        {
+            if (!isAIenabled || movingPlayer != aiPlayer)
+            {
+                field.PutPlayer(stableMatrixPos, movingPlayer);
 
-        AnalyzeField();
+                AnalyzeField();
+
+                if (!isGameOver)
+                {
+                    NextPlayer();
+                }
+            }
+        }
+    }
+
+    private void NextPlayer()
+    {
+        movingPlayer = movingPlayer == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1;
+        if (isAIenabled && movingPlayer == aiPlayer)
+        {
+            MoveWithAI();
+        }
+    }
+
+    private void MoveWithAI()
+    {
+        var pos = ai.GetBestPosition();
+        field.PutPlayer(pos, aiPlayer);
+        NextPlayer();
     }
 
     void AnalyzeField()

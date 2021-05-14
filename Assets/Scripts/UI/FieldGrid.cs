@@ -96,7 +96,7 @@ public class FieldGrid : MonoBehaviour
         // they are adjusted in field Move method
         Vector3Int stableMatrixPos = pos;
         Debug.Log("Stable " + stableMatrixPos);
-        gameController.Move(new Vector2Int(stableMatrixPos.x, stableMatrixPos.y));
+        gameController.MoveWithPlayer(new Vector2Int(stableMatrixPos.x, stableMatrixPos.y));
     }
 
     void RedrawGrid()

@@ -122,6 +122,11 @@ public class Field : MonoBehaviour
         return true;
     }
 
+    public bool CellCompliesWithRules(Vector2Int stableMatrixPos)
+    {
+        return IsCellEmpty(stableMatrixPos) && FallsWithinGrid(stableMatrixPos);
+    }
+
     // returns distance from the point to every border
     private (int distance, FieldBorders border)[] DistanceToBorders(Vector2Int stableMatrixPos)
     {
