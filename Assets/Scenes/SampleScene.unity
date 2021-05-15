@@ -462,7 +462,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   field: {fileID: 662252282}
-  fullLineLength: 3
+  fullLineLength: 5
   ai: {fileID: 1948843420}
   aiPlayer: 1
 --- !u!4 &143966544
@@ -5335,7 +5335,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   field: {fileID: 662252282}
-  movesToCalculate: 2
+  movesToCalculate: 3
   maxRangeFromExistingCells: 5
 --- !u!1 &1959818085
 GameObject:

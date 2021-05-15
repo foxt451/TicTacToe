@@ -84,7 +84,7 @@ public class MinimaxAI : MonoBehaviour
         return new int[] { -x, x };
     }
 
-    private HashSet<(int x, int y)> GetRectangularPoses(int r)
+    private HashSet<(int x, int y)> GetRectangularPoses((int x, int y) centralCell, int r)
     {
         HashSet<(int x, int y)> result = new HashSet<(int x, int y)>();
         var negAndPos = GetBothPositiveAndNegative(r);
@@ -92,8 +92,8 @@ public class MinimaxAI : MonoBehaviour
         {
             for (int j = negAndPos[0]; j <= negAndPos[1]; j++)
             {
-                result.Add((i, j));
-                result.Add((j, i));
+                result.Add((centralCell.x + i, centralCell.y + j));
+                result.Add((centralCell.x + j, centralCell.y + i));
             }
         }
 
@@ -146,7 +146,7 @@ public class MinimaxAI : MonoBehaviour
             centralCell.y + deltaAbs <= bounds.yTop ||
             centralCell.y - deltaAbs >= bounds.yBot)
         {
-            foreach ((int i, int j) in GetRectangularPoses(deltaAbs))
+            foreach ((int i, int j) in GetRectangularPoses(centralCell, deltaAbs))
             {
                 // skip cells out of bounds
                 if (!field.HasCell(i, j))
