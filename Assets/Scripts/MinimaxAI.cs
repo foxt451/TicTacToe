@@ -122,7 +122,7 @@ public class MinimaxAI : MonoBehaviour
     // positive score for player1
     // negative score for player2
     private (int score, (int x, int y) posToMove) Minimax(int depth, PlayerMark maximizing, StaticAnalysis getScore,
-        IsGameOver isGameOver)
+        IsGameOver isGameOver, int alpha = int.MinValue, int beta = int.MaxValue)
     {
         if (depth == 0 || isGameOver())
         {
@@ -166,7 +166,7 @@ public class MinimaxAI : MonoBehaviour
                     field.PutPlayer(new Vector2Int(i, j), maximizing);
                     var branchBestResult = Minimax(depth - 1,
                         maximizing == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1,
-                        getScore, isGameOver);
+                        getScore, isGameOver, alpha, beta);
                     if (maximizing == PlayerMark.Player1)
                     {
                         if (bestScore < branchBestResult.score)
@@ -174,6 +174,7 @@ public class MinimaxAI : MonoBehaviour
                             bestScore = branchBestResult.score;
                             bestPos = (i, j);
                         }
+                        alpha = Math.Max(alpha, branchBestResult.score);
                     }
                     else
                     {
@@ -182,6 +183,12 @@ public class MinimaxAI : MonoBehaviour
                             bestScore = branchBestResult.score;
                             bestPos = (i, j);
                         }
+                        beta = Math.Min(beta, branchBestResult.score);
+                    }
+
+                    if (beta <= alpha)
+                    {
+                        break;
                     }
 
                     // restore field after every branch
