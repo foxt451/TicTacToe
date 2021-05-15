@@ -2187,7 +2187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f641a9325adb704fa744a710586f667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  expandingDistance: -1
+  expandingDistance: 5
   height: 10
   width: 10
 --- !u!4 &662252283
@@ -5335,8 +5335,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   field: {fileID: 662252282}
-  movesToCalculate: 3
-  maxRangeFromExistingCells: 5
+  movesToCalculate: 4
+  maxRangeFromLastMove: 5
 --- !u!1 &1959818085
 GameObject:
   m_ObjectHideFlags: 0

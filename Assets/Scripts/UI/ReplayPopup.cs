@@ -37,9 +37,12 @@ public class ReplayPopup : MonoBehaviour
         Debug.Log(timeSectionRectTransform.sizeDelta);
         if (isTimed)
         {
-            timeSection.Show();
-            popupRectTransform.sizeDelta = new Vector2(popupRectTransform.sizeDelta.x,
-                popupRectTransform.sizeDelta.y + timeSectionRectTransform.sizeDelta.y);
+            if (!timeSection.gameObject.activeSelf)
+            {
+                timeSection.Show();
+                popupRectTransform.sizeDelta = new Vector2(popupRectTransform.sizeDelta.x,
+                    popupRectTransform.sizeDelta.y + timeSectionRectTransform.sizeDelta.y);
+            }
         }
         else
         {

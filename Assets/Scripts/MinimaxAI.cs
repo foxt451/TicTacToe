@@ -12,7 +12,7 @@ public class MinimaxAI : MonoBehaviour
     private int movesToCalculate;
 
     [SerializeField]
-    private int maxRangeFromExistingCells;
+    private int maxRangeFromLastMove;
 
     //private Vector2Int GetRandomAvailablePos()
     //{
@@ -84,17 +84,29 @@ public class MinimaxAI : MonoBehaviour
         return new int[] { -x, x };
     }
 
-    private HashSet<(int x, int y)> GetRectangularPoses((int x, int y) centralCell, int r)
+    private List<(int x, int y)> GetRectangularPoses((int x, int y) centralCell,
+        (int xLeft, int xRight, int yBot, int yTop) bounds)
     {
-        HashSet<(int x, int y)> result = new HashSet<(int x, int y)>();
-        var negAndPos = GetBothPositiveAndNegative(r);
-        foreach (int i in negAndPos) 
+        List<(int x, int y)> result = new List<(int x, int y)>();
+        int delta = 0;
+        while ((centralCell.x + delta <= bounds.xRight ||
+            centralCell.x - delta >= bounds.xLeft ||
+            centralCell.y + delta <= bounds.yTop ||
+            centralCell.y - delta >= bounds.yBot) && delta <= maxRangeFromLastMove)
         {
-            for (int j = negAndPos[0]; j <= negAndPos[1]; j++)
+            var negAndPos = GetBothPositiveAndNegative(delta);
+            foreach (int i in negAndPos)
             {
-                result.Add((centralCell.x + i, centralCell.y + j));
-                result.Add((centralCell.x + j, centralCell.y + i));
+                for (int j = negAndPos[0]; j <= negAndPos[1]; j++)
+                {
+                    result.Add((centralCell.x + i, centralCell.y + j));
+                    if (j != negAndPos[0] && j != negAndPos[1])
+                    {
+                        result.Add((centralCell.x + j, centralCell.y + i));
+                    }
+                }
             }
+            delta++;
         }
 
         return result;
@@ -126,7 +138,7 @@ public class MinimaxAI : MonoBehaviour
     {
         if (depth == 0 || isGameOver())
         {
-            return (getScore(), field.stableLastMove);
+            return (getScore() * (depth + 1), field.stableLastMove);
         }
 
         // save field state
@@ -140,65 +152,50 @@ public class MinimaxAI : MonoBehaviour
         (int x, int y) centralCell = field.stableLastMove;
 
         var bounds = field.GetStableBounds();
-        int deltaAbs = 0;
-        while (centralCell.x + deltaAbs <= bounds.xRight ||
-            centralCell.x - deltaAbs >= bounds.xLeft ||
-            centralCell.y + deltaAbs <= bounds.yTop ||
-            centralCell.y - deltaAbs >= bounds.yBot)
+        foreach ((int i, int j) in GetRectangularPoses(centralCell, bounds))
         {
-            foreach ((int i, int j) in GetRectangularPoses(centralCell, deltaAbs))
+            // skip cells out of bounds
+            if (!field.HasCell(i, j))
             {
-                // skip cells out of bounds
-                if (!field.HasCell(i, j))
-                {
-                    continue;
-                }
-
-                // if the cell is >(x, x) away from other filled cells, prune it
-                if (!field.IsCloserThanDistanceToOthers((i, j), maxRangeFromExistingCells))
-                {
-                    continue;
-                }
-
-                // only try empty cells
-                if (field.GetPlayerAtCell(i, j) == PlayerMark.Empty)
-                {
-                    field.PutPlayer(new Vector2Int(i, j), maximizing);
-                    var branchBestResult = Minimax(depth - 1,
-                        maximizing == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1,
-                        getScore, isGameOver, alpha, beta);
-                    if (maximizing == PlayerMark.Player1)
-                    {
-                        if (bestScore < branchBestResult.score)
-                        {
-                            bestScore = branchBestResult.score;
-                            bestPos = (i, j);
-                        }
-                        alpha = Math.Max(alpha, branchBestResult.score);
-                    }
-                    else
-                    {
-                        if (bestScore > branchBestResult.score)
-                        {
-                            bestScore = branchBestResult.score;
-                            bestPos = (i, j);
-                        }
-                        beta = Math.Min(beta, branchBestResult.score);
-                    }
-
-                    if (beta <= alpha)
-                    {
-                        break;
-                    }
-
-                    // restore field after every branch
-                    field.CopyField(fieldInfo);
-                }
-                
+                continue;
             }
-            deltaAbs++;
-        }
 
+            // only try empty cells
+            if (field.GetPlayerAtCell(i, j) == PlayerMark.Empty)
+            {
+                field.PutPlayer(new Vector2Int(i, j), maximizing);
+                var branchBestResult = Minimax(depth - 1,
+                    maximizing == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1,
+                    getScore, isGameOver, alpha, beta);
+
+                if (maximizing == PlayerMark.Player1)
+                {
+                    if (bestScore < branchBestResult.score)
+                    {
+                        bestScore = branchBestResult.score;
+                        bestPos = (i, j);
+                    }
+                    alpha = Math.Max(alpha, branchBestResult.score);
+                }
+                else
+                {
+                    if (bestScore > branchBestResult.score)
+                    {
+                        bestScore = branchBestResult.score;
+                        bestPos = (i, j);
+                    }
+                    beta = Math.Min(beta, branchBestResult.score);
+                }
+
+                // restore field after every branch
+                field.CopyField(fieldInfo);
+
+                if (beta <= alpha)
+                {
+                    break;
+                }
+            }
+        }
         return (bestScore, bestPos);
     }
 }

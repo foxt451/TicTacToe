@@ -42,26 +42,26 @@ public class Field : MonoBehaviour
         initialSize = (width, height);
     }
 
-    public bool IsCloserThanDistanceToOthers((int x, int y) stablePos, int distance)
-    {
-        (int x, int y) minDelta = (-distance, -distance);
-        (int x, int y) maxDelta = (distance, distance);
+    //public bool IsCloserThanDistanceToOthers((int x, int y) stablePos, int distance)
+    //{
+    //    (int x, int y) minDelta = (-distance, -distance);
+    //    (int x, int y) maxDelta = (distance, distance);
 
-        var bounds = GetStableBounds();
-        for (int i = Mathf.Max(bounds.xLeft, stablePos.x + minDelta.x);
-            i <= Mathf.Min(bounds.xRight, stablePos.x + maxDelta.x); i++)
-        {
-            for (int j = Mathf.Max(bounds.yBot, stablePos.y + minDelta.y);
-                j <= Mathf.Min(bounds.yTop, stablePos.y + maxDelta.y); j++)
-            {
-                if (GetPlayerAtCell(i, j) != PlayerMark.Empty)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+    //    var bounds = GetStableBounds();
+    //    for (int i = Mathf.Max(bounds.xLeft, stablePos.x + minDelta.x);
+    //        i <= Mathf.Min(bounds.xRight, stablePos.x + maxDelta.x); i++)
+    //    {
+    //        for (int j = Mathf.Max(bounds.yBot, stablePos.y + minDelta.y);
+    //            j <= Mathf.Min(bounds.yTop, stablePos.y + maxDelta.y); j++)
+    //        {
+    //            if (GetPlayerAtCell(i, j) != PlayerMark.Empty)
+    //            {
+    //                return true;
+    //            }
+    //        }
+    //    }
+    //    return false;
+    //}
 
     public PlayerMark GetLastPlayerToMove()
     {
