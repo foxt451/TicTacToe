@@ -79,6 +79,27 @@ public class MinimaxAI : MonoBehaviour
         return scores.player1 - scores.player2;
     }
 
+    private int[] GetBothPositiveAndNegative(int x)
+    {
+        return new int[] { -x, x };
+    }
+
+    private HashSet<(int x, int y)> GetRectangularPoses(int r)
+    {
+        HashSet<(int x, int y)> result = new HashSet<(int x, int y)>();
+        var negAndPos = GetBothPositiveAndNegative(r);
+        foreach (int i in negAndPos) 
+        {
+            for (int j = negAndPos[0]; j <= negAndPos[1]; j++)
+            {
+                result.Add((i, j));
+                result.Add((j, i));
+            }
+        }
+
+        return result;
+    }
+
     // stable pos
     public Vector2Int GetBestPosition(PlayerMark player, GameMode mode, GameAnalyzer analyzer)
     {
@@ -116,11 +137,23 @@ public class MinimaxAI : MonoBehaviour
         (int x, int y) bestPos = (0, 0);
 
         // traverse all possible positions
+        (int x, int y) centralCell = field.stableLastMove;
+
         var bounds = field.GetStableBounds();
-        for (int i = bounds.xLeft; i <= bounds.xRight; i++)
+        int deltaAbs = 0;
+        while (centralCell.x + deltaAbs <= bounds.xRight ||
+            centralCell.x - deltaAbs >= bounds.xLeft ||
+            centralCell.y + deltaAbs <= bounds.yTop ||
+            centralCell.y - deltaAbs >= bounds.yBot)
         {
-            for (int j = bounds.yBot; j <= bounds.yTop; j++)
+            foreach ((int i, int j) in GetRectangularPoses(deltaAbs))
             {
+                // skip cells out of bounds
+                if (!field.HasCell(i, j))
+                {
+                    continue;
+                }
+
                 // if the cell is >(x, x) away from other filled cells, prune it
                 if (!field.IsCloserThanDistanceToOthers((i, j), maxRangeFromExistingCells))
                 {
@@ -154,7 +187,9 @@ public class MinimaxAI : MonoBehaviour
                     // restore field after every branch
                     field.CopyField(fieldInfo);
                 }
+                
             }
+            deltaAbs++;
         }
 
         return (bestScore, bestPos);
