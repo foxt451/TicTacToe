@@ -17,28 +17,27 @@ public class MinimaxAI : MonoBehaviour
     [SerializeField]
     private int winLine;
 
-    //private Vector2Int GetRandomAvailablePos()
-    //{
-    //    List<Vector2Int> available = new List<Vector2Int>();
-    //    var bounds = field.GetStableBounds();
-    //    for (int i = bounds.xLeft; i <= bounds.xRight; i++)
-    //    {
-    //        for (int j = bounds.yBot; j <= bounds.yTop; j++)
-    //        {
-    //            if (field.GetPlayerAtCell(i, j) == PlayerMark.Empty)
-    //            {
-    //                available.Add(new Vector2Int(i, j));
-    //            }
-    //        }
-    //    }
+    private Vector2Int GetRandomAvailablePos()
+    {
+        List<Vector2Int> available = new List<Vector2Int>();
+        var bounds = field.GetStableBounds();
+        for (int i = bounds.xLeft; i <= bounds.xRight; i++)
+        {
+            for (int j = bounds.yBot; j <= bounds.yTop; j++)
+            {
+                if (field.GetPlayerAtCell(i, j) == PlayerMark.Empty)
+                {
+                    available.Add(new Vector2Int(i, j));
+                }
+            }
+        }
 
-    //    int ind = new System.Random().Next(available.Count);
-    //    return available[ind];
-    //}
+        int ind = new System.Random().Next(available.Count);
+        return available[ind];
+    }
 
     // positive score for player1
     // negative score for player2
-    private delegate double StaticAnalysis();
 
     private delegate bool IsGameOver();
 
@@ -52,44 +51,17 @@ public class MinimaxAI : MonoBehaviour
         return analyzer.GetGameStatus() == DifficultyGameStatus.Defeated;
     }
 
-    private double TimedStaticAnalysis(TimedGameAnalyzer analyzer)
-    {
-        // save state before analyzing
-        TimedGameAnalyzerInfo info = analyzer.GetSerializableInfo();
+    
 
-        var deltaScores = analyzer.GetGameScore();
-
-        // restore
-        analyzer.Reconstruct(info);
-
-        return deltaScores.player1Score - deltaScores.player2Score;
-    }
-
-    private double DifficultyStaticAnalysis(DifficultyGameAnalyzer analyzer)
-    {
-        (int player1, int player2) scores = (0, 0);
-        if (analyzer.GetGameStatus() == DifficultyGameStatus.Defeated)
-        {
-            if (field.GetLastPlayerToMove() == PlayerMark.Player1)
-            {
-                scores.player1++;
-            }
-            else if (field.GetLastPlayerToMove() == PlayerMark.Player2)
-            {
-                scores.player2++;
-            }
-        }
-        return scores.player1 - scores.player2;
-    }
-
-    private int[] GetBothPositiveAndNegative(int x)
-    {
-        return new int[] { -x, x };
-    }
-
-    private List<(int x, int y)> GetAvailableMoves((int x, int y) centralCell,
+    private List<(int x, int y)> GetAvailableMovesInRectOrder((int x, int y) centralCell,
         (int xLeft, int xRight, int yBot, int yTop) bounds)
     {
+
+        int[] GetBothPositiveAndNegative(int x)
+        {
+            return new int[] { -x, x };
+        }
+
         List<(int x, int y)> result = new List<(int x, int y)>();
         int delta = 0;
         while ((centralCell.x + delta <= bounds.xRight ||
@@ -124,263 +96,173 @@ public class MinimaxAI : MonoBehaviour
     }
 
 
-
-    private (int deltaX, int deltaY)[] directions = new (int deltaX, int deltaY)[]
+    private double GetLinePrice(List<Line> onePlayerSublines)
     {
-        (0, 1), // vertical
-        (1, 0), // horizontal
-        (1, 1), // right-diagonal
-        (-1, 1) // left-diagonal
-    };
+        string log = "";
+        int totalSpace = 0;
+        int emptyBetween = 0;
+        int emptyEdgesCount = 0;
+        double playerSeries = 0;
+        for (int i = 0; i < onePlayerSublines.Count; i++)
+        {
+            Line subLine = onePlayerSublines[i];
+            log += $"{field.GetPlayerAtCell(subLine.stableEnd1.x, subLine.stableEnd1.y)}x{subLine.length} ";
+            if (field.GetPlayerAtCell(subLine.stableEnd1.x, subLine.stableEnd1.y) == PlayerMark.Empty)
+            {
+                if (i == 0 || i == onePlayerSublines.Count - 1)
+                {
+                    emptyEdgesCount++;
+                }
+                else
+                {
+                    emptyBetween += subLine.length;
+                }
+            }
+            else
+            {
+                if (subLine.length >= winLine)
+                {
+                    log += " 1000000";
+                    Debug.Log(log);
+                    return 1000000;
+                }
+                playerSeries += Math.Pow(subLine.length, 3) * 10;
+            }
+            totalSpace += subLine.length;
+        }
 
-    private (double p1H, double p2H) GetHeuristicsForField((int xLeft, int xRight, int yBot, int yTop) boundsForAnalysis)
+        if (totalSpace < winLine)
+        {
+            return 0;
+        }
+
+        // improve playerSeries based on other data
+        playerSeries *= emptyEdgesCount + 1;
+        playerSeries /= emptyBetween + 1;
+
+        if (playerSeries > 30)
+        {
+            log += playerSeries;
+            Debug.Log(log);
+        }
+        return playerSeries;
+    }
+
+    private (double p1H, double p2H) GetHeuristicsForField(GameAnalyzer analyzer)
     {
-        (int totalP1H, int totalP2H) = (0, 0);
-        // horizontal
-        for (int y = boundsForAnalysis.yBot; y <= boundsForAnalysis.yTop; y++)
+        (double totalP1H, double totalP2H) = (0, 0);
+
+        List<List<Line>> lines = analyzer.ScanField(field.stableLastMove, maxRangeFromLastMove);
+
+        foreach(List<Line> line in lines)
         {
-            (int x, int y) curCell = (boundsForAnalysis.xLeft, y);
-            // scan right
-            int player1Value = 0;
-            int player2Value = 0;
-            PlayerMark curPlayer = PlayerMark.Empty;
-            while (field.HasCell(curCell.x, curCell.y))
+            List<Line> onePlayerSublines = new List<Line>();
+            PlayerMark previousPlayer = PlayerMark.Empty;
+
+            for (int i = 0; i < line.Count; i++)
             {
-                PlayerMark player = field.GetPlayerAtCell(curCell.x, curCell.y);
-                if (curPlayer == PlayerMark.Empty)
+                PlayerMark player = field.GetPlayerAtCell(line[i].stableEnd1.x, line[i].stableEnd1.y);
+                // no player discovered yet
+                if (previousPlayer == PlayerMark.Empty)
                 {
-                    curPlayer = player;
-                    player1Value++;
-                    player2Value++;
+                    previousPlayer = player;
                 }
                 
+                if (player != PlayerMark.Empty)
+                {
+                    // player line abrupted by another player, so flush the line
+                    if (player != previousPlayer || i == line.Count - 1)
+                    {
+                        double collected = GetLinePrice(onePlayerSublines);
+                        if (previousPlayer == PlayerMark.Player1)
+                        {
+                            totalP1H += collected;
+                        }
+                        else if (previousPlayer == PlayerMark.Player2)
+                        {
+                            totalP2H += collected;
+                        }
+
+
+                        if (onePlayerSublines.Count > 0)
+                        {
+                            Line lastSubline = new Line();
+                            try
+                            {
+
+                                lastSubline = onePlayerSublines[onePlayerSublines.Count - 1];
+                            }
+                            catch
+                            {
+                                Debug.Log("ERROR");
+                            }
+                            onePlayerSublines = new List<Line>();
+                            if (field.GetPlayerAtCell(lastSubline.stableEnd1.x, lastSubline.stableEnd1.y) == PlayerMark.Empty)
+                            {
+                                onePlayerSublines.Add(lastSubline);
+                            }
+                        }
+                        onePlayerSublines.Add(line[i]);
+                        previousPlayer = player;
+                    }
+                    else
+                    {
+                        // continue
+                        onePlayerSublines.Add(line[i]);
+                    }
+                }
+                else
+                {
+                    onePlayerSublines.Add(line[i]);
+                }
                 
-                if (curPlayer == player && player != PlayerMark.Empty)
-                {
-                    if (curPlayer == PlayerMark.Player1)
-                    {
-                        player1Value *= 2;
-                    }
-                    else
-                    {
-                        player2Value *= 2;
-                    }
-                }
-                else if (curPlayer == player && player == PlayerMark.Empty)
-                {
-                    player1Value++;
-                    player2Value++;
-                }
-                else
-                {
-                    curPlayer = player;
-                }
-                
-                curCell.x++;
             }
-            totalP1H += player1Value;
-            totalP2H += player2Value;
+            
+            //PlayerMark player = field.GetPlayerAtCell(line.stableEnd1.x, line.stableEnd1.y);
+            //int additionalH = line.length * line.length * 10;
+            //if (player == PlayerMark.Player1)
+            //{
+            //    totalP1H += additionalH;
+            //}
+            //else if (player == PlayerMark.Player2)
+            //{
+            //    totalP2H += additionalH;
+            //}
         }
-
-        // vertical
-        for (int x = boundsForAnalysis.xLeft; x <= boundsForAnalysis.xRight; x++)
-        {
-            (int x, int y) curCell = (x, boundsForAnalysis.yBot);
-            // scan up
-            int player1Value = 0;
-            int player2Value = 0;
-            PlayerMark curPlayer = PlayerMark.Empty;
-            while (field.HasCell(curCell.x, curCell.y))
-            {
-                PlayerMark player = field.GetPlayerAtCell(curCell.x, curCell.y);
-                if (curPlayer == PlayerMark.Empty)
-                {
-                    curPlayer = player;
-                    player1Value++;
-                    player2Value++;
-                }
-
-
-                if (curPlayer == player && player != PlayerMark.Empty)
-                {
-                    if (curPlayer == PlayerMark.Player1)
-                    {
-                        player1Value *= 2;
-                    }
-                    else
-                    {
-                        player2Value *= 2;
-                    }
-                }
-                else if (curPlayer == player && player == PlayerMark.Empty)
-                {
-                    player1Value++;
-                    player2Value++;
-                }
-                else
-                {
-                    curPlayer = player;
-                }
-
-                curCell.y++;
-            }
-            totalP1H += player1Value;
-            totalP2H += player2Value;
-        }
-
-        // diagonal1
-        for (int x = boundsForAnalysis.xLeft, y = boundsForAnalysis.yBot;
-            x < boundsForAnalysis.xRight || y < boundsForAnalysis.yTop;)
-        {
-            (int x, int y) curCell = (x, boundsForAnalysis.yBot);
-            // scan up
-            int player1Value = 0;
-            int player2Value = 0;
-            PlayerMark curPlayer = PlayerMark.Empty;
-            while (field.HasCell(curCell.x, curCell.y))
-            {
-                PlayerMark player = field.GetPlayerAtCell(curCell.x, curCell.y);
-                if (curPlayer == PlayerMark.Empty)
-                {
-                    curPlayer = player;
-                    player1Value++;
-                    player2Value++;
-                }
-
-
-                if (curPlayer == player && player != PlayerMark.Empty)
-                {
-                    if (curPlayer == PlayerMark.Player1)
-                    {
-                        player1Value *= 2;
-                    }
-                    else
-                    {
-                        player2Value *= 2;
-                    }
-                }
-                else if (curPlayer == player && player == PlayerMark.Empty)
-                {
-                    player1Value++;
-                    player2Value++;
-                }
-                else
-                {
-                    curPlayer = player;
-                }
-
-                curCell.y++;
-                curCell.x--;
-            }
-            totalP1H += player1Value;
-            totalP2H += player2Value;
-
-            if (x < boundsForAnalysis.xRight)
-            {
-                x++;
-            }
-            if (y < boundsForAnalysis.yTop)
-            {
-                y++;
-            }
-        }
-
-        // d2
-        for (int x = boundsForAnalysis.xRight, y = boundsForAnalysis.yBot;
-            x > boundsForAnalysis.xLeft || y < boundsForAnalysis.yTop;)
-        {
-            (int x, int y) curCell = (x, boundsForAnalysis.yBot);
-            // scan up
-            int player1Value = 0;
-            int player2Value = 0;
-            PlayerMark curPlayer = PlayerMark.Empty;
-            while (field.HasCell(curCell.x, curCell.y))
-            {
-                PlayerMark player = field.GetPlayerAtCell(curCell.x, curCell.y);
-                if (curPlayer == PlayerMark.Empty)
-                {
-                    curPlayer = player;
-                    player1Value++;
-                    player2Value++;
-                }
-
-
-                if (curPlayer == player && player != PlayerMark.Empty)
-                {
-                    if (curPlayer == PlayerMark.Player1)
-                    {
-                        player1Value *= 2;
-                    }
-                    else
-                    {
-                        player2Value *= 2;
-                    }
-                }
-                else if (curPlayer == player && player == PlayerMark.Empty)
-                {
-                    player1Value++;
-                    player2Value++;
-                }
-                else
-                {
-                    curPlayer = player;
-                }
-
-                curCell.y++;
-                curCell.x++;
-            }
-            totalP1H += player1Value;
-            totalP2H += player2Value;
-
-            if (x > boundsForAnalysis.xLeft)
-            {
-                x--;
-            }
-            if (y < boundsForAnalysis.yTop) 
-            {
-                y++;
-            }
-        }
-
+        
         return (totalP1H, totalP2H);
     }
 
 
 
     // stable pos
-    public Vector2Int GetBestPosition(PlayerMark player, GameMode mode, GameAnalyzer analyzer)
+    public Vector2Int GetBestPosition(PlayerMark player, GameMode mode)
     {
-        StaticAnalysis getScore;
         IsGameOver isGameOver;
         if (mode == GameMode.Difficulty)
         {
-            getScore = () => DifficultyStaticAnalysis((DifficultyGameAnalyzer)analyzer);
-            isGameOver = () => IsGameOverDifficulty((DifficultyGameAnalyzer)analyzer);
+            isGameOver = () => IsGameOverDifficulty(new DifficultyGameAnalyzer(field, winLine));
         }
         else
         {
-            getScore = () => TimedStaticAnalysis((TimedGameAnalyzer)analyzer);
             isGameOver = IsGameOverTimed;
         }
-        var bestResult = Minimax(movesToCalculate, player, getScore, isGameOver);
+        var bestResult = Minimax(movesToCalculate, player, isGameOver, new GameAnalyzer(field, winLine));
         return new Vector2Int(bestResult.posToMove.x, bestResult.posToMove.y);
     }
 
     // positive score for player1
     // negative score for player2
-    private (double score, (int x, int y) posToMove) Minimax(int depth, PlayerMark maximizing, StaticAnalysis getScore,
-        IsGameOver isGameOver, double alpha = double.NegativeInfinity, double beta = double.PositiveInfinity)
+    private (double score, (int x, int y) posToMove) Minimax(int depth, PlayerMark maximizing,
+        IsGameOver isGameOver, GameAnalyzer analyzer, double alpha = double.NegativeInfinity, double beta = double.PositiveInfinity)
     {
-        if (isGameOver())
+        if (depth == 0 || isGameOver())
         {
-            return (getScore() * 10000 * (depth + 1), field.stableLastMove);
-        }
-        else if (depth == 0)
-        {
-            var heuristics = GetHeuristicsForField((field.stableLastMove.x - maxRangeFromLastMove,
-                field.stableLastMove.x + maxRangeFromLastMove, field.stableLastMove.y - maxRangeFromLastMove,
-                field.stableLastMove.y + maxRangeFromLastMove));
-            Debug.Log(heuristics);
+            var heuristics = GetHeuristicsForField(analyzer);
+            if (heuristics.p1H == 160)
+            {
+                Debug.Log(1);
+            }
             return ((heuristics.p1H - heuristics.p2H) * (depth + 1), field.stableLastMove);
         }
 
@@ -395,12 +277,12 @@ public class MinimaxAI : MonoBehaviour
         (int x, int y) centralCell = field.stableLastMove;
 
         var bounds = field.GetStableBounds();
-        foreach ((int i, int j) in GetAvailableMoves(centralCell, bounds))
+        foreach ((int i, int j) in GetAvailableMovesInRectOrder(centralCell, bounds))
         {
             field.PutPlayer(new Vector2Int(i, j), maximizing);
             var branchBestResult = Minimax(depth - 1,
                 maximizing == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1,
-                getScore, isGameOver, alpha, beta);
+                isGameOver, analyzer, alpha, beta);
 
             if (maximizing == PlayerMark.Player1)
             {

@@ -51,6 +51,75 @@ public class GameAnalyzer
             (end1.x, end1.y));
     }
 
+
+    private List<Line> GetLinesInFullDirection((int deltaX, int deltaY) direction, (int x, int y) lastMove, bool scanPartially, int maxScanL)
+    {
+        List<Line> lines = new List<Line>();
+        // go down the field following the reverse direction
+        (int x, int y) curCell = lastMove;
+        (int x, int y) nextCell = (curCell.x - direction.deltaX, curCell.y - direction.deltaY);    
+        while (field.HasCell(nextCell.x, nextCell.y))
+        {
+            if (scanPartially && (Math.Abs(nextCell.x - lastMove.x) > maxScanL || Math.Abs(nextCell.y - lastMove.y) > maxScanL))
+            {
+                break;
+            }
+            curCell = nextCell;
+            nextCell = (curCell.x - direction.deltaX, curCell.y - direction.deltaY);
+        }
+
+        // scan sublines in straight direction
+        while(field.HasCell(curCell.x, curCell.y) && 
+            (Math.Abs(curCell.x - lastMove.x) <= maxScanL && Math.Abs(nextCell.y - lastMove.y) <= maxScanL))
+        {
+            (int x, int y, int length) subLineEnd = GetLastCellOfLineInSemiDirection(direction,
+                curCell, false, 0);
+            lines.Add(new Line(subLineEnd.length, (subLineEnd.x, subLineEnd.y), curCell));
+            curCell = (subLineEnd.x + direction.deltaX, subLineEnd.y + direction.deltaY);
+        }
+
+        return lines;
+    }
+
+    public List<List<Line>> ScanField((int x, int y) lastMove, int maxScanL)
+    {
+
+        List<List<Line>> lines = new List<List<Line>>();
+
+        var bounds = field.GetStableBounds();
+        foreach (var dir in directions)
+        {
+            (int x, int y) cur;
+            cur.x = dir.deltaY < 0 ? Math.Max(lastMove.x - maxScanL, bounds.xLeft) :
+                Math.Min(lastMove.x + maxScanL, bounds.xRight);
+            cur.y = dir.deltaX > 0 ? Math.Max(lastMove.y - maxScanL, bounds.yBot) :
+                Math.Min(lastMove.y + maxScanL, bounds.yTop);
+            if (dir.deltaY != 0)
+            {
+                for (; cur.x <= Math.Min(lastMove.x + maxScanL, bounds.xRight) &&
+                    cur.x >= Math.Max(lastMove.x - maxScanL, bounds.xLeft);
+                    cur.x += (dir.deltaY < 0 ? 1 : -1))
+                {
+                    lines.Add(GetLinesInFullDirection(dir, cur, true, maxScanL));
+                }
+            }
+
+            cur.x -= (dir.deltaY < 0 ? 1 : -1);
+            cur.y += (dir.deltaX > 0 ? 1 : -1);
+
+            if (dir.deltaX != 0)
+            {
+                for (; cur.y <= Math.Min(lastMove.y + maxScanL, bounds.yTop) &&
+                    cur.y >= Math.Max(lastMove.y - maxScanL, bounds.yBot);
+                    cur.y += (dir.deltaX > 0 ? 1 : -1))
+                {
+                    lines.Add(GetLinesInFullDirection(dir, cur, true, maxScanL));
+                }
+            }
+        }
+        return lines;
+    }
+
     public GameAnalyzer(Field field, int lineLength)
     {
         this.field = field;

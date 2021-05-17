@@ -162,16 +162,7 @@ public class GameController : MonoBehaviour
     private void MoveWithAI()
     {
         Debug.Log("MOVING WITH AI");
-        GameAnalyzer analyzerToUse;
-        if (mode == GameMode.Difficulty)
-        {
-            analyzerToUse = difficultyGameAnalyzer;
-        }
-        else
-        {
-            analyzerToUse = timedGameAnalyzer;
-        }
-        var pos = ai.GetBestPosition(movingPlayer, mode, analyzerToUse);
+        var pos = ai.GetBestPosition(movingPlayer, mode);
         Debug.Log("best ai move " + pos);
         Move(pos);
     }
