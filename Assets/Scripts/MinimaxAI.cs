@@ -207,7 +207,7 @@ public class MinimaxAI : MonoBehaviour
                 //{
                 //    continue;
                 //}
-                double posH = HeuristicsForPos((x, y), analyzer, imaginablePlayer);
+                double posH = Heuristics2Players1Pos((x, y), analyzer);
                 moves.Add(((x, y), posH));
             }
         }
@@ -217,8 +217,17 @@ public class MinimaxAI : MonoBehaviour
     }
 
     private double secondsInH = 0;
-    private double HeuristicsForPos((int i, int j) pos, GameAnalyzer analyzer, PlayerMark imaginablePlayer)
+
+    private double Heuristics2Players1Pos((int i, int j) pos, GameAnalyzer analyzer)
     {
+        double h1 = Heuristics1Player1Pos(pos, analyzer, PlayerMark.Player1);
+        double h2 = Heuristics1Player1Pos(pos, analyzer, PlayerMark.Player2);
+        return h1 + h2;
+    }
+    private double Heuristics1Player1Pos((int i, int j) pos, GameAnalyzer analyzer, PlayerMark imaginablePlayer)
+    {
+        // TODO
+        // take into account enemy's almost complete lines
         double start = Time.realtimeSinceStartup;
         List<(int totalSpace, List<(int combo, bool isEmpty)> series)> advantage = analyzer.GetPosAdvantage(pos, imaginablePlayer);
         double h = 0;

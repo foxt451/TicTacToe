@@ -159,9 +159,10 @@ public class GameController : MonoBehaviour
         }
     }
 
+    // TODO
+    // turn into coroutine, so that the game doesn't freeze
     private void MoveWithAI()
     {
-        Debug.Log("MOVING WITH AI");
         GameAnalyzer analyzerToUse;
         if (mode == GameMode.Difficulty)
         {
@@ -172,7 +173,6 @@ public class GameController : MonoBehaviour
             analyzerToUse = timedGameAnalyzer;
         }
         var pos = ai.GetBestPosition(movingPlayer, mode, analyzerToUse);
-        Debug.Log("best ai move " + pos);
         Move(pos);
     }
 
