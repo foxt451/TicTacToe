@@ -91,34 +91,6 @@ public class MinimaxAI : MonoBehaviour
         return new int[] { -x, x };
     }
 
-    //private List<(int x, int y)> GetRectangularPoses((int x, int y) centralCell,
-    //    (int xLeft, int xRight, int yBot, int yTop) bounds)
-    //{
-    //    List<(int x, int y)> result = new List<(int x, int y)>();
-    //    int delta = 0;
-    //    while ((centralCell.x + delta <= bounds.xRight ||
-    //        centralCell.x - delta >= bounds.xLeft ||
-    //        centralCell.y + delta <= bounds.yTop ||
-    //        centralCell.y - delta >= bounds.yBot) && delta <= maxRangeFromLastMove)
-    //    {
-    //        var negAndPos = GetBothPositiveAndNegative(delta);
-    //        foreach (int i in negAndPos)
-    //        {
-    //            for (int j = negAndPos[0]; j <= negAndPos[1]; j++)
-    //            {
-    //                result.Add((centralCell.x + i, centralCell.y + j));
-    //                if (j != negAndPos[0] && j != negAndPos[1])
-    //                {
-    //                    result.Add((centralCell.x + j, centralCell.y + i));
-    //                }
-    //            }
-    //        }
-    //        delta++;
-    //    }
-
-    //    return result;
-    //}
-
     // stable pos
     public Vector2Int GetBestPosition(PlayerMark player, GameMode mode, GameAnalyzer analyzer)
     {
@@ -126,7 +98,7 @@ public class MinimaxAI : MonoBehaviour
         IsGameOver isGameOver;
         if (mode == GameMode.Difficulty)
         {
-            getScore = () => DifficultyStaticAnalysis((DifficultyGameAnalyzer)analyzer);
+            getScore = () => DifficultyStaticAnalysis((DifficultyGameAnalyzer)analyzer) * 1000000;
             isGameOver = () => IsGameOverDifficulty((DifficultyGameAnalyzer)analyzer);
         }
         else
@@ -154,7 +126,7 @@ public class MinimaxAI : MonoBehaviour
         if (depth == 0 || isGameOver())
         {
             // 1000000 multiplier because the victory is the best/worst outcome possible
-            return (getScore() * 1000000 * (depth + 1), field.stableLastMove);
+            return (getScore() * (depth + 1), field.stableLastMove);
         }
 
         // save field state
@@ -229,12 +201,12 @@ public class MinimaxAI : MonoBehaviour
                 {
                     continue;
                 }
-                // if out of specified range - continue
-                if (Math.Abs(field.stableLastMove.x - x) > maxRangeFromLastMove ||
-                    Math.Abs(field.stableLastMove.y - y) > maxRangeFromLastMove)
-                {
-                    continue;
-                }
+                //// if out of specified range - continue
+                //if (Math.Abs(field.stableLastMove.x - x) > maxRangeFromLastMove ||
+                //    Math.Abs(field.stableLastMove.y - y) > maxRangeFromLastMove)
+                //{
+                //    continue;
+                //}
                 double posH = HeuristicsForPos((x, y), analyzer, imaginablePlayer);
                 moves.Add(((x, y), posH));
             }
