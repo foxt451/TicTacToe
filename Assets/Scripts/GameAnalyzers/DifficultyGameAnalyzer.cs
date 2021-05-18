@@ -22,7 +22,7 @@ public class DifficultyGameAnalyzer: GameAnalyzer
         foreach (var direction in directions)
         {
             Line line = GetLineInFullDirection(direction, field.stableLastMove, true, lineLength);
-            if (line.length >= lineLength)
+            if (line.length >= lineLength && field.GetPlayerAtCell(line.stableEnd1.x, line.stableEnd1.y) != PlayerMark.Empty)
             {
                 return DifficultyGameStatus.Defeated;
             }
