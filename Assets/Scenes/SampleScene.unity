@@ -5338,7 +5338,7 @@ MonoBehaviour:
   movesToCalculate: 4
   maxRangeFromLastMove: 5
   winLine: 5
-  maxPosNumberEachLevel: 100
+  maxPosNumberEachLevel: 10
 --- !u!1 &1959818085
 GameObject:
   m_ObjectHideFlags: 0

@@ -125,7 +125,6 @@ public class MinimaxAI : MonoBehaviour
         recursiveCalls++;
         if (depth == 0 || isGameOver())
         {
-            // 1000000 multiplier because the victory is the best/worst outcome possible
             return (getScore() * (depth + 1), field.stableLastMove);
         }
 
@@ -226,8 +225,6 @@ public class MinimaxAI : MonoBehaviour
     }
     private double Heuristics1Player1Pos((int i, int j) pos, GameAnalyzer analyzer, PlayerMark imaginablePlayer)
     {
-        // TODO
-        // take into account enemy's almost complete lines
         double start = Time.realtimeSinceStartup;
         List<(int totalSpace, List<(int combo, bool isEmpty)> series)> advantage = analyzer.GetPosAdvantage(pos, imaginablePlayer);
         double h = 0;

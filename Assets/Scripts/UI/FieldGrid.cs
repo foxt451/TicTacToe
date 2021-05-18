@@ -87,6 +87,11 @@ public class FieldGrid : MonoBehaviour
             return;
         }
 
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
         Vector3 clickPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int pos = fieldTileMap.WorldToCell(clickPoint);
         Debug.Log("Cell " + pos);
