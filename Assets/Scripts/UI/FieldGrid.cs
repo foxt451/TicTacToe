@@ -158,7 +158,16 @@ public class FieldGrid : MonoBehaviour
                 {
                     continue; // empty cell
                 }
-                Tile tile = player == PlayerMark.Player1 ? player1.Representation : player2.Representation;
+                Tile tile;
+                if (field.stableLastMove == (j, i))
+                {
+                    tile = player == PlayerMark.Player1 ? player1.Highlighted : player2.Highlighted;
+                }
+                else
+                {
+                    tile = player == PlayerMark.Player1 ? player1.Representation : player2.Representation;
+                }
+                
                 playerTileMap.SetTile(new Vector3Int(j, i, 0), tile);
             }
         }

@@ -9,5 +9,9 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private Tile representation;
+
+    [SerializeField]
+    private Tile hightlightedRepresentation;
     public Tile Representation { get => representation; }
+    public Tile Highlighted { get => hightlightedRepresentation; }
 }

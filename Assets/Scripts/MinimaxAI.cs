@@ -255,10 +255,6 @@ public class MinimaxAI : MonoBehaviour
                 }
                 else
                 {
-                    if (value.combo >= winLine)
-                    {
-                        return 10000000;
-                    }
                     dirH += Math.Pow(value.combo * 2, 3) * 10;
                 }
             }

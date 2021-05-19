@@ -22,6 +22,7 @@ public class GameController : MonoBehaviour
     [NonSerialized]
     public GameMode mode;
     private bool isAIenabled;
+    private float aiWorkSecs = 0;
 
     [NonSerialized]
     public float totalSecondsTime;
@@ -62,6 +63,23 @@ public class GameController : MonoBehaviour
                 {
                     FinishGame();
                 }
+            }
+        }
+    }
+
+    private void UpdateTimeAI()
+    {
+        if (mode == GameMode.Timed)
+        {
+            if ((aiPlayer == PlayerMark.Player1 && score.player1 <= score.player2) ||
+                (aiPlayer == PlayerMark.Player2 && score.player2 <= score.player1))
+            {
+                aiWorkSecs = 0;
+                totalSecondsTime -= aiWorkSecs;
+            }
+            if (totalSecondsTime <= 0)
+            {
+                FinishGame();
             }
         }
     }
@@ -173,8 +191,12 @@ public class GameController : MonoBehaviour
             analyzerToUse = timedGameAnalyzer;
         }
         Messenger.Broadcast(GameEvents.AI_START);
+        float bestPosStart = Time.realtimeSinceStartup;
         yield return null;
         var pos = ai.GetBestPosition(movingPlayer, mode, analyzerToUse);
+        float bestPosEnd = Time.realtimeSinceStartup;
+        aiWorkSecs = bestPosEnd - bestPosStart;
+        UpdateTimeAI();
         Messenger.Broadcast(GameEvents.AI_FINISH);
         Move(pos);
     }
