@@ -94,6 +94,8 @@ public class MinimaxAI : MonoBehaviour
     // stable pos
     public Vector2Int GetBestPosition(PlayerMark player, GameMode mode, GameAnalyzer analyzer)
     {
+        float bestPosStart = Time.realtimeSinceStartup;
+
         StaticAnalysis getScore;
         IsGameOver isGameOver;
         if (mode == GameMode.Difficulty)
@@ -110,9 +112,11 @@ public class MinimaxAI : MonoBehaviour
         secondsInGetPoses = 0;
         secondsInH = 0;
         var bestResult = Minimax(movesToCalculate, player, getScore, isGameOver, new GameAnalyzer(field, winLine));
+        float bestPosEnd = Time.realtimeSinceStartup;
         Debug.Log("Minimax called " + recursiveCalls);
         Debug.Log("Secs in GetPoses " + secondsInGetPoses);
         Debug.Log("Secs in H " + secondsInH);
+        Debug.Log("Total secs " + (bestPosEnd - bestPosStart));
         return new Vector2Int(bestResult.posToMove.x, bestResult.posToMove.y);
     }
 
@@ -141,7 +145,7 @@ public class MinimaxAI : MonoBehaviour
             ((int x, int y) pos, double h) = moves.DeleteMax();
             (int i, int j) = pos;
             
-            field.PutPlayer(new Vector2Int(i, j), maximizing);
+            field.PutPlayer(new Vector2Int(i, j), maximizing, false);
             (int score, (int x, int y) posToMove) branchBestResult = Minimax(depth - 1,
                     maximizing == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1,
                     getScore, isGameOver, analyzer, alpha, beta);
@@ -167,7 +171,7 @@ public class MinimaxAI : MonoBehaviour
             }
 
             // restore field after every branch
-            field.CopyField(fieldInfo);
+            field.CopyField(fieldInfo, false);
 
             if (beta <= alpha)
             {

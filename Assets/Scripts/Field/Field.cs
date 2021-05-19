@@ -81,7 +81,7 @@ public class Field : MonoBehaviour
         return options;
     }
 
-    public void CopyField(FieldOptions field)
+    public void CopyField(FieldOptions field, bool sendMsg = true)
     {
         matrix = HelperFunctions.DeepMatrixCopy(field.matrix);
         height = field.height;
@@ -90,7 +90,10 @@ public class Field : MonoBehaviour
         totalIncrease = field.totalIncrease;
         initialSize = field.initialSize;
         stableLastMove = field.stableLastMove;
-        Messenger.Broadcast(GameEvents.FIELD_UPDATED);
+        if (sendMsg)
+        {
+            Messenger.Broadcast(GameEvents.FIELD_UPDATED);
+        }
     }
     
 
@@ -102,7 +105,7 @@ public class Field : MonoBehaviour
         Messenger.Broadcast(GameEvents.FIELD_UPDATED);
     }
 
-    public void Reset()
+    public void Reset(bool sendMsg = true)
     {
         Width = initialSize.width;
         Height = initialSize.height;
@@ -117,7 +120,10 @@ public class Field : MonoBehaviour
                 matrix[i].Add(PlayerMark.Empty);
             }
         }
-        Messenger.Broadcast(GameEvents.FIELD_UPDATED);
+        if (sendMsg)
+        {
+            Messenger.Broadcast(GameEvents.FIELD_UPDATED);
+        }
     }
 
     public bool HasCell(int stableX, int stableY)
@@ -255,7 +261,7 @@ public class Field : MonoBehaviour
 
     // matrix pos stays constant forever
     // it needs to be adjusted according to current expansion and size
-    public void PutPlayer(Vector2Int stableMatrixPos, PlayerMark player)
+    public void PutPlayer(Vector2Int stableMatrixPos, PlayerMark player, bool sendMsg = true)
     {
         Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
 
@@ -277,6 +283,9 @@ public class Field : MonoBehaviour
         // if we approach borders, resize the field
         UpdateSize(stableMatrixPos);
 
-        Messenger.Broadcast(GameEvents.FIELD_UPDATED);
+        if (sendMsg)
+        {
+            Messenger.Broadcast(GameEvents.FIELD_UPDATED);
+        }
     }
 }

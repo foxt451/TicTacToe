@@ -120,7 +120,7 @@ public class GameController : MonoBehaviour
 
         if (isAIenabled && movingPlayer == aiPlayer)
         {
-            MoveWithAI();
+            StartCoroutine(MoveWithAI());
         }
     }
 
@@ -134,7 +134,7 @@ public class GameController : MonoBehaviour
         movingPlayer = movingPlayer == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1;
         if (isAIenabled && movingPlayer == aiPlayer)
         {
-            MoveWithAI();
+            StartCoroutine(MoveWithAI());
         }
     }
 
@@ -161,7 +161,7 @@ public class GameController : MonoBehaviour
 
     // TODO
     // turn into coroutine, so that the game doesn't freeze
-    private void MoveWithAI()
+    private IEnumerator MoveWithAI()
     {
         GameAnalyzer analyzerToUse;
         if (mode == GameMode.Difficulty)
@@ -172,7 +172,10 @@ public class GameController : MonoBehaviour
         {
             analyzerToUse = timedGameAnalyzer;
         }
+        Messenger.Broadcast(GameEvents.AI_START);
+        yield return null;
         var pos = ai.GetBestPosition(movingPlayer, mode, analyzerToUse);
+        Messenger.Broadcast(GameEvents.AI_FINISH);
         Move(pos);
     }
 
