@@ -2266,7 +2266,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   expandingDistance: 5
   height: 10
-  lastMovesToStore: 4
+  lastMovesToStore: 2
   width: 10
 --- !u!4 &662252283
 Transform:
