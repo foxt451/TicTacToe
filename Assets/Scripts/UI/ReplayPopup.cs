@@ -71,6 +71,6 @@ public class ReplayPopup : MonoBehaviour
             AIToggle.isOn, timeSection.GetTotalSeconds(), (0, 0), PlayerMark.Player1, false);
 
         // send message
-        GameController.controller.StartNewGame(options);
+        GameController.controller.StartNewGame(MousePanner.defaultCameraPos, options);
     }
 }

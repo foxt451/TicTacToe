@@ -66,7 +66,7 @@ public class GameAnalyzer
             (end1.x, end1.y));
     }
 
-    public List<(int totalSpace, List<(int combo, bool isEmpty)> series)> GetPosAdvantage((int x, int y) pos, PlayerMark imaginablePlayer)
+    public List<(int totalSpace, List<(int combo, bool isEmpty)> series)> GetPosAdvantage((int x, int y) pos, PlayerMark imaginablePlayer, int maxRange)
     {
         var result = new List<(int totalSpace, List<(int combo, bool isEmpty)> series)>();
         foreach((int deltaX, int deltaY) dir in directions)
@@ -74,7 +74,7 @@ public class GameAnalyzer
             int totalSpace = 0;
             List<(int combo, bool isEmpty)> series = new List<(int combo, bool isEmpty)>();
 
-            Line line = GetLineInFullDirection(dir, pos, false, 0, true, true, imaginablePlayer);
+            Line line = GetLineInFullDirection(dir, pos, true, maxRange, true, true, imaginablePlayer);
             totalSpace = line.length;
             (int x, int y)[] lineCells = line.GetLineCells();
             PlayerMark previous = PlayerMark.Empty;

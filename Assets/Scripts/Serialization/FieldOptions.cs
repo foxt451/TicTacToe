@@ -5,6 +5,9 @@ using System.Collections.Generic;
 public class FieldOptions
 {
     public List<List<PlayerMark>> matrix;
+    public List<(int x, int y)> lastMoves;
+    public int lastMovesToStore;
+
     public (int xRight, int xLeft,
         int yTop, int yBot) totalIncrease;
 

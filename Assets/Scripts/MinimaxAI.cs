@@ -13,7 +13,7 @@ public class MinimaxAI : MonoBehaviour
     private int movesToCalculate;
 
     [SerializeField]
-    private int maxRangeFromLastMove;
+    private int maxRangeFromLastMoves;
 
     [SerializeField]
     private int winLine;
@@ -117,6 +117,7 @@ public class MinimaxAI : MonoBehaviour
         Debug.Log("Secs in GetPoses " + secondsInGetPoses);
         Debug.Log("Secs in H " + secondsInH);
         Debug.Log("Total secs " + (bestPosEnd - bestPosStart));
+        Debug.Log("best move " + bestResult.posToMove);
         return new Vector2Int(bestResult.posToMove.x, bestResult.posToMove.y);
     }
 
@@ -145,7 +146,7 @@ public class MinimaxAI : MonoBehaviour
             ((int x, int y) pos, double h) = moves.DeleteMax();
             (int i, int j) = pos;
             
-            field.PutPlayer(new Vector2Int(i, j), maximizing, false);
+            field.PutPlayer(new Vector2Int(i, j), maximizing, false, false);
             (int score, (int x, int y) posToMove) branchBestResult = Minimax(depth - 1,
                     maximizing == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1,
                     getScore, isGameOver, analyzer, alpha, beta);
@@ -204,6 +205,11 @@ public class MinimaxAI : MonoBehaviour
                 {
                     continue;
                 }
+                if (!field.IsCloseToLastMoves((x, y), maxRangeFromLastMoves))
+                {
+                    
+                    continue;
+                }
                 //// if out of specified range - continue
                 //if (Math.Abs(field.stableLastMove.x - x) > maxRangeFromLastMove ||
                 //    Math.Abs(field.stableLastMove.y - y) > maxRangeFromLastMove)
@@ -230,7 +236,8 @@ public class MinimaxAI : MonoBehaviour
     private double Heuristics1Player1Pos((int i, int j) pos, GameAnalyzer analyzer, PlayerMark imaginablePlayer)
     {
         double start = Time.realtimeSinceStartup;
-        List<(int totalSpace, List<(int combo, bool isEmpty)> series)> advantage = analyzer.GetPosAdvantage(pos, imaginablePlayer);
+        List<(int totalSpace, List<(int combo, bool isEmpty)> series)> advantage = analyzer.GetPosAdvantage(pos, imaginablePlayer,
+            maxRangeFromLastMoves);
         double h = 0;
         foreach ((int totalSpace, List<(int combo, bool isEmpty)> series) in advantage)
         {

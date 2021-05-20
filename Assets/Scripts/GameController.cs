@@ -46,6 +46,9 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private PlayerMark aiPlayer;
 
+    [SerializeField]
+    private MousePanner panner;
+
     private void Awake()
     {
         controller = this;
@@ -102,8 +105,10 @@ public class GameController : MonoBehaviour
     public (GameOptions options, Field field, TimedGameAnalyzer timedAnalyzer) GetGameData() => (new GameOptions(mode,
         isAIenabled, totalSecondsTime, score, movingPlayer, isGameOver), field, timedGameAnalyzer);
 
-    public void StartNewGame(GameOptions options, FieldOptions field = null, TimedGameAnalyzerInfo timedAnalyzerInfo = null)
+    public void StartNewGame((float x, float y, float z) cameraPos, GameOptions options, FieldOptions field = null, TimedGameAnalyzerInfo timedAnalyzerInfo = null)
     {
+        panner.SetCurPos(cameraPos);
+
         mode = options.mode;
         isAIenabled = options.AI;
 

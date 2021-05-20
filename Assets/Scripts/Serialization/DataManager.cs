@@ -12,6 +12,9 @@ public class DataManager : MonoBehaviour
     private const string SlotFileStart = "slot";
     private const string SlotFileExtenstion = ".save";
 
+    [SerializeField]
+    private MousePanner panner;
+
     private string ConstructSlotPath(int slot)
     {
         return Path.Combine(Application.persistentDataPath, SlotFileStart + slot + SlotFileExtenstion);
@@ -25,6 +28,7 @@ public class DataManager : MonoBehaviour
     private const string optionsSerializeName = "options";
     private const string fieldSerializeName = "field";
     private const string timedAnalyzerSerializeName = "timedAnalyzer";
+    private const string cameraSerializeName = "camera";
 
     public bool LoadFromSlot(int slot)
     {
@@ -37,7 +41,8 @@ public class DataManager : MonoBehaviour
         using (FileStream stream = File.OpenRead(path))
         {
             var options = formatter.Deserialize(stream) as Dictionary<string, object>;
-            GameController.controller.StartNewGame((GameOptions)options[optionsSerializeName],
+            GameController.controller.StartNewGame(((float x, float y, float z))options[cameraSerializeName], 
+                (GameOptions)options[optionsSerializeName],
                 (FieldOptions)options[fieldSerializeName], (TimedGameAnalyzerInfo)options[timedAnalyzerSerializeName]);
         }
         return true;
@@ -59,7 +64,8 @@ public class DataManager : MonoBehaviour
             {
                 { optionsSerializeName, options},
                 { fieldSerializeName, field.GetFieldData() },
-                { timedAnalyzerSerializeName, timedAnalyzer.GetSerializableInfo()}
+                { timedAnalyzerSerializeName, timedAnalyzer.GetSerializableInfo()},
+                { cameraSerializeName,  panner.GetCurPos()},
             };
             formatter.Serialize(stream, data);
         }

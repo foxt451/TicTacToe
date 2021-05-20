@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class MousePanner : MonoBehaviour
 {
+    [SerializeField]
+    public static (float x, float y, float z) defaultCameraPos = (0, 0, -10);
+
     public float dragSpeed = 2f;
     private Vector3 originMousePos;
     private Vector3 originCameraWorldPos;
@@ -24,5 +27,15 @@ public class MousePanner : MonoBehaviour
             Vector3 deltaPos = curPos - originMousePos;
             transform.position = originCameraWorldPos - deltaPos * dragSpeed;
         }
+    }
+
+    public (float x, float y, float z) GetCurPos()
+    {
+        return (transform.position.x, transform.position.y, transform.position.z);
+    }
+
+    public void SetCurPos((float x, float y, float z) pos)
+    {
+        transform.position = new Vector3(pos.x, pos.y, pos.z);
     }
 }

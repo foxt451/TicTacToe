@@ -13,6 +13,11 @@ public class Field : MonoBehaviour
     [SerializeField]
     private int height;
 
+    [SerializeField]
+    private int lastMovesToStore = 5;
+
+    private List<(int x, int y)> lastMoves = new List<(int x, int y)>();
+
     // it's more convenient to work indirectly through variables rather than returning List dimensions
     // because we may want to modify the list, at the same time relying on the old width and height
     // and only then update sizes
@@ -68,10 +73,25 @@ public class Field : MonoBehaviour
         return GetPlayerAtCell(stableLastMove.x, stableLastMove.y);
     }
 
+    public bool IsCloseToLastMoves((int x, int y) pos, int distance)
+    {
+        if (lastMoves.Count == 0) return true; 
+        foreach((int x, int y) move in lastMoves)
+        {
+            if (Math.Max(Math.Abs(move.x - pos.x), Math.Abs(move.y - pos.y)) <= distance)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public FieldOptions GetFieldData()
     {
         FieldOptions options = new FieldOptions();
         options.matrix = HelperFunctions.DeepMatrixCopy(matrix);
+        options.lastMoves = new List<(int x, int y)>(lastMoves);
+        options.lastMovesToStore = lastMovesToStore;
         options.stableLastMove = stableLastMove;
         options.initialSize = initialSize;
         options.totalIncrease = totalIncrease;
@@ -84,6 +104,8 @@ public class Field : MonoBehaviour
     public void CopyField(FieldOptions field, bool sendMsg = true)
     {
         matrix = HelperFunctions.DeepMatrixCopy(field.matrix);
+        lastMoves = new List<(int x, int y)>(field.lastMoves);
+        lastMovesToStore = field.lastMovesToStore;
         height = field.height;
         width = field.width;
         expandingDistance = field.expandingDistance;
@@ -109,7 +131,10 @@ public class Field : MonoBehaviour
     {
         Width = initialSize.width;
         Height = initialSize.height;
+
         stableLastMove = (0, 0);
+        lastMoves = new List<(int x, int y)>();
+
         totalIncrease = (0, 0, 0, 0);
         matrix = new List<List<PlayerMark>>();
         for (int i = 0; i < Height; i++)
@@ -261,7 +286,7 @@ public class Field : MonoBehaviour
 
     // matrix pos stays constant forever
     // it needs to be adjusted according to current expansion and size
-    public void PutPlayer(Vector2Int stableMatrixPos, PlayerMark player, bool sendMsg = true)
+    public void PutPlayer(Vector2Int stableMatrixPos, PlayerMark player, bool sendMsg = true, bool updateLastMoveList = true)
     {
         Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
 
@@ -279,6 +304,14 @@ public class Field : MonoBehaviour
         matrix[realMatrixPos.y][realMatrixPos.x] = player;
 
         stableLastMove = (stableMatrixPos.x, stableMatrixPos.y);
+        if (updateLastMoveList)
+        {
+            lastMoves.Add(stableLastMove);
+            if (lastMoves.Count > lastMovesToStore)
+            {
+                lastMoves.RemoveAt(0);
+            }
+        }
 
         // if we approach borders, resize the field
         UpdateSize(stableMatrixPos);

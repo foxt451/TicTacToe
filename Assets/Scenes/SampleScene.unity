@@ -465,6 +465,7 @@ MonoBehaviour:
   fullLineLength: 5
   ai: {fileID: 1948843420}
   aiPlayer: 1
+  panner: {fileID: 519420033}
 --- !u!4 &143966544
 Transform:
   m_ObjectHideFlags: 0
@@ -2265,6 +2266,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   expandingDistance: 5
   height: 10
+  lastMovesToStore: 4
   width: 10
 --- !u!4 &662252283
 Transform:
@@ -5016,6 +5018,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b1b1dec78aca50449f06d8019a7ef3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  panner: {fileID: 519420033}
 --- !u!4 &1634336726
 Transform:
   m_ObjectHideFlags: 0
@@ -5414,7 +5417,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   field: {fileID: 662252282}
   movesToCalculate: 4
-  maxRangeFromLastMove: 5
+  maxRangeFromLastMoves: 10
   winLine: 5
   maxPosNumberEachLevel: 8
 --- !u!1 &1959818085
