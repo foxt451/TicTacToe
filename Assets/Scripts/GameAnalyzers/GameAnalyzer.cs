@@ -35,7 +35,7 @@ public class GameAnalyzer
         {
             PlayerMark nextPlayer = field.GetPlayerAtCell(nextCell.x, nextCell.y);
             while (field.HasCell(nextCell.x, nextCell.y) &&
-                (nextPlayer == player || (ignoreEmpty && nextPlayer == PlayerMark.Empty) || player == PlayerMark.Empty))
+                (nextPlayer == player || (ignoreEmpty && nextPlayer == PlayerMark.Empty)))
             {
                 if (earlyExit && length >= earlyExitDistance)
                 {
@@ -45,7 +45,10 @@ public class GameAnalyzer
                 nextCell = (startCell.x + semiDirection.deltaX, startCell.y + semiDirection.deltaY);
                 if (field.HasCell(nextCell.x, nextCell.y))
                 {
-                    nextPlayer = field.GetPlayerAtCell(nextCell.x, nextCell.y);
+                    if (field.GetPlayerAtCell(nextCell.x, nextCell.y) != PlayerMark.Empty || !ignoreEmpty)
+                    {
+                        nextPlayer = field.GetPlayerAtCell(nextCell.x, nextCell.y);
+                    }
                 }
                 length++;
             }
@@ -61,7 +64,7 @@ public class GameAnalyzer
             ignoreEmpty, imaginePlayer, imaginable);
         // reverse direction
         (int x, int y, int length) end2 = GetLastCellOfLineInSemiDirection((-direction.deltaX, -direction.deltaY),
-            lastMove, earlyExit, earlyExitLength - end1.length + 1, ignoreEmpty, imaginePlayer, imaginable);
+            lastMove, earlyExit, earlyExitLength, ignoreEmpty, imaginePlayer, imaginable);
         return new Line(end1.length + end2.length - 1, (end2.x, end2.y), 
             (end1.x, end1.y));
     }

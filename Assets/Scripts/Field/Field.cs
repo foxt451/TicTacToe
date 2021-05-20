@@ -286,7 +286,7 @@ public class Field : MonoBehaviour
 
     // matrix pos stays constant forever
     // it needs to be adjusted according to current expansion and size
-    public void PutPlayer(Vector2Int stableMatrixPos, PlayerMark player, bool sendMsg = true, bool updateLastMoveList = true)
+    public void PutPlayer(Vector2Int stableMatrixPos, PlayerMark player, bool sendMsg = true)
     {
         Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
 
@@ -304,14 +304,11 @@ public class Field : MonoBehaviour
         matrix[realMatrixPos.y][realMatrixPos.x] = player;
 
         stableLastMove = (stableMatrixPos.x, stableMatrixPos.y);
-        if (updateLastMoveList)
-        {
             lastMoves.Add(stableLastMove);
             if (lastMoves.Count > lastMovesToStore)
             {
                 lastMoves.RemoveAt(0);
             }
-        }
 
         // if we approach borders, resize the field
         UpdateSize(stableMatrixPos);

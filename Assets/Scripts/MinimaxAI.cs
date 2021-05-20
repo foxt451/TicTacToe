@@ -146,7 +146,7 @@ public class MinimaxAI : MonoBehaviour
             ((int x, int y) pos, double h) = moves.DeleteMax();
             (int i, int j) = pos;
             
-            field.PutPlayer(new Vector2Int(i, j), maximizing, false, false);
+            field.PutPlayer(new Vector2Int(i, j), maximizing, false);
             (int score, (int x, int y) posToMove) branchBestResult = Minimax(depth - 1,
                     maximizing == PlayerMark.Player1 ? PlayerMark.Player2 : PlayerMark.Player1,
                     getScore, isGameOver, analyzer, alpha, beta);
@@ -229,6 +229,14 @@ public class MinimaxAI : MonoBehaviour
 
     private double Heuristics2Players1Pos((int i, int j) pos, GameAnalyzer analyzer)
     {
+        if (pos == (1, -1))
+        {
+            Debug.Log("ALLOWED");
+        }
+        if (pos == (-4, -5))
+        {
+            Debug.Log("ALLdfdfED");
+        }
         double h1 = Heuristics1Player1Pos(pos, analyzer, PlayerMark.Player1);
         double h2 = Heuristics1Player1Pos(pos, analyzer, PlayerMark.Player2);
         return h1 + h2;
@@ -258,11 +266,11 @@ public class MinimaxAI : MonoBehaviour
                 }
                 else if (value.isEmpty)
                 {
-                    emptyBetween++;
+                    emptyBetween+=value.combo;
                 }
                 else
                 {
-                    dirH += Math.Pow(value.combo * 2, 3) * 10;
+                    dirH += Math.Pow((value.combo % (winLine + 1)) * 2, 3) * 10;
                 }
             }
 
