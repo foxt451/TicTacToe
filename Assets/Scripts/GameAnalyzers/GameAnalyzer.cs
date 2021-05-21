@@ -69,25 +69,27 @@ public class GameAnalyzer
             (end1.x, end1.y));
     }
 
-    public List<(int totalSpace, List<(int combo, bool isEmpty)> series)> GetPosAdvantage((int x, int y) pos, PlayerMark imaginablePlayer, int maxRange)
+    public List<(int totalSpace, List<(int combo, bool isEmpty, bool isPosInSeries)> series)> GetPosAdvantage((int x, int y) pos, PlayerMark imaginablePlayer, int maxRange)
     {
-        var result = new List<(int totalSpace, List<(int combo, bool isEmpty)> series)>();
+        var result = new List<(int totalSpace, List<(int combo, bool isEmpty, bool isPosInSeries)> series)>();
         foreach((int deltaX, int deltaY) dir in directions)
         {
             int totalSpace = 0;
-            List<(int combo, bool isEmpty)> series = new List<(int combo, bool isEmpty)>();
+            List<(int combo, bool isEmpty, bool isPosInSeries)> series = new List<(int combo, bool isEmpty, bool isPosInSeries)>();
 
             Line line = GetLineInFullDirection(dir, pos, true, maxRange, true, true, imaginablePlayer);
             totalSpace = line.length;
             (int x, int y)[] lineCells = line.GetLineCells();
             PlayerMark previous = PlayerMark.Empty;
             int previousSeries = 0;
+            bool containsPos = false;
             for (int i = 0; i < lineCells.Length; i++)
             {
                 PlayerMark current = field.GetPlayerAtCell(lineCells[i].x, lineCells[i].y);
                 // to avoid changing field, we imagine the player is at the initial pos
                 if (lineCells[i].x == pos.x && lineCells[i].y == pos.y)
                 {
+                    containsPos = true;
                     current = imaginablePlayer;
                 }
                 if (i == 0)
@@ -104,7 +106,9 @@ public class GameAnalyzer
                     else
                     {
                         //flush the series
-                        series.Add((previousSeries, previous == PlayerMark.Empty));
+                        series.Add((previousSeries, previous == PlayerMark.Empty,
+                            containsPos));
+                        containsPos = false;
                         previousSeries = 1;
                         previous = current;
                     }
@@ -113,7 +117,7 @@ public class GameAnalyzer
             // flush remaining
             if (previousSeries > 0)
             {
-                series.Add((previousSeries, previous == PlayerMark.Empty));
+                series.Add((previousSeries, previous == PlayerMark.Empty, containsPos));
             }
             result.Add((totalSpace, series));
         }

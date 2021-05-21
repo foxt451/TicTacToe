@@ -244,10 +244,10 @@ public class MinimaxAI : MonoBehaviour
     private double Heuristics1Player1Pos((int i, int j) pos, GameAnalyzer analyzer, PlayerMark imaginablePlayer)
     {
         double start = Time.realtimeSinceStartup;
-        List<(int totalSpace, List<(int combo, bool isEmpty)> series)> advantage = analyzer.GetPosAdvantage(pos, imaginablePlayer,
+        List<(int totalSpace, List<(int combo, bool isEmpty, bool isPosInSeries)> series)> advantage = analyzer.GetPosAdvantage(pos, imaginablePlayer,
             maxRangeFromLastMoves);
         double h = 0;
-        foreach ((int totalSpace, List<(int combo, bool isEmpty)> series) in advantage)
+        foreach ((int totalSpace, List<(int combo, bool isEmpty, bool isPosInSeries)> series) in advantage)
         {
             if (totalSpace < winLine)
             {
@@ -259,7 +259,7 @@ public class MinimaxAI : MonoBehaviour
             int freeEdges = 0;
             for (int i = 0; i < series.Count; i++)
             {
-                (int combo, bool isEmpty) value = series[i];
+                (int combo, bool isEmpty, bool isPosInSeries) value = series[i];
                 if (value.isEmpty && (i == 0 || i == series.Count - 1))
                 {
                     freeEdges++;
@@ -270,7 +270,9 @@ public class MinimaxAI : MonoBehaviour
                 }
                 else
                 {
-                    dirH += Math.Pow((value.combo % (winLine + 1)) * 2, 3) * 10;
+                    int combo = value.combo % (value.isPosInSeries ? (winLine + 1) : winLine);
+                    dirH += Math.Pow(combo * 2, 3) * 10;
+                    dirH += (value.combo - combo) * 200;
                 }
             }
 
