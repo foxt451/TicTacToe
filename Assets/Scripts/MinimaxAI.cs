@@ -229,14 +229,6 @@ public class MinimaxAI : MonoBehaviour
 
     private double Heuristics2Players1Pos((int i, int j) pos, GameAnalyzer analyzer)
     {
-        if (pos == (1, -1))
-        {
-            Debug.Log("ALLOWED");
-        }
-        if (pos == (-4, -5))
-        {
-            Debug.Log("ALLdfdfED");
-        }
         double h1 = Heuristics1Player1Pos(pos, analyzer, PlayerMark.Player1);
         double h2 = Heuristics1Player1Pos(pos, analyzer, PlayerMark.Player2);
         return h1 + h2;
@@ -272,7 +264,7 @@ public class MinimaxAI : MonoBehaviour
                 {
                     int combo = value.combo % (value.isPosInSeries ? (winLine + 1) : winLine);
                     dirH += Math.Pow(combo * 2, 3) * 10;
-                    dirH += (value.combo - combo) * 200;
+                    dirH += (value.combo - combo) * 1000;
                 }
             }
 

@@ -143,7 +143,7 @@ public class GameController : MonoBehaviour
 
         if (isAIenabled && movingPlayer == aiPlayer)
         {
-            StartCoroutine(MoveWithAI());
+            StartCoroutine(MoveWithAI(true));
         }
     }
 
@@ -184,7 +184,7 @@ public class GameController : MonoBehaviour
 
     // TODO
     // turn into coroutine, so that the game doesn't freeze
-    private IEnumerator MoveWithAI()
+    private IEnumerator MoveWithAI(bool initialMove=false)
     {
         GameAnalyzer analyzerToUse;
         if (mode == GameMode.Difficulty)
@@ -196,9 +196,17 @@ public class GameController : MonoBehaviour
             analyzerToUse = timedGameAnalyzer;
         }
         Messenger.Broadcast(GameEvents.AI_START);
-        float bestPosStart = Time.realtimeSinceStartup;
         yield return null;
-        var pos = ai.GetBestPosition(movingPlayer, mode, analyzerToUse);
+        float bestPosStart = Time.realtimeSinceStartup;
+        Vector2Int pos;
+        if (initialMove)
+        {
+            pos = new Vector2Int(0, 0);
+        }
+        else
+        {
+            pos = ai.GetBestPosition(movingPlayer, mode, analyzerToUse);
+        }
         float bestPosEnd = Time.realtimeSinceStartup;
         aiWorkSecs = bestPosEnd - bestPosStart;
         UpdateTimeAI();
