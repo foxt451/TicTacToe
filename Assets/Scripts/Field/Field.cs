@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
+
+// the game field representation and related methods
 public class Field : MonoBehaviour
 {
     // when we move in a cell closer than 5 cells from the boundaries, we expand the matrix
@@ -47,32 +47,15 @@ public class Field : MonoBehaviour
         initialSize = (width, height);
     }
 
-    //public bool IsCloserThanDistanceToOthers((int x, int y) stablePos, int distance)
-    //{
-    //    (int x, int y) minDelta = (-distance, -distance);
-    //    (int x, int y) maxDelta = (distance, distance);
 
-    //    var bounds = GetStableBounds();
-    //    for (int i = Mathf.Max(bounds.xLeft, stablePos.x + minDelta.x);
-    //        i <= Mathf.Min(bounds.xRight, stablePos.x + maxDelta.x); i++)
-    //    {
-    //        for (int j = Mathf.Max(bounds.yBot, stablePos.y + minDelta.y);
-    //            j <= Mathf.Min(bounds.yTop, stablePos.y + maxDelta.y); j++)
-    //        {
-    //            if (GetPlayerAtCell(i, j) != PlayerMark.Empty)
-    //            {
-    //                return true;
-    //            }
-    //        }
-    //    }
-    //    return false;
-    //}
-
+    // returns the last player to move in the field
     public PlayerMark GetLastPlayerToMove()
     {
         return GetPlayerAtCell(stableLastMove.x, stableLastMove.y);
     }
 
+    // whether the specified position is not further than "distance" to the positions from "lastMoves"
+    // if it is close enough to at least 1 of them, it's true
     public bool IsCloseToLastMoves((int x, int y) pos, int distance)
     {
         if (lastMoves.Count == 0) return true; 
@@ -86,6 +69,8 @@ public class Field : MonoBehaviour
         return false;
     }
 
+
+    // serializable info
     public FieldOptions GetFieldData()
     {
         FieldOptions options = new FieldOptions();
@@ -101,6 +86,7 @@ public class Field : MonoBehaviour
         return options;
     }
 
+    // restore field from serializable info
     public void CopyField(FieldOptions field, bool sendMsg = true)
     {
         matrix = HelperFunctions.DeepMatrixCopy(field.matrix);
@@ -127,6 +113,8 @@ public class Field : MonoBehaviour
         Messenger.Broadcast(GameEvents.FIELD_UPDATED);
     }
 
+
+    // restore the field to its initial state
     public void Reset(bool sendMsg = true)
     {
         Width = initialSize.width;
@@ -151,18 +139,23 @@ public class Field : MonoBehaviour
         }
     }
 
+    // whether the field contains a cell with such coordinates
     public bool HasCell(int stableX, int stableY)
     {
         Vector2Int realMatrixPos = StablePosToMatrixPos(new Vector2Int(stableX, stableY));
         return realMatrixPos.x >= 0 && realMatrixPos.y >= 0 && realMatrixPos.x < Width && realMatrixPos.y < Height;
     }
 
+
+    // returns the player at the specified cell
     public PlayerMark GetPlayerAtCell(int stableX, int stableY)
     {
         Vector2Int realMatrixPos = StablePosToMatrixPos(new Vector2Int(stableX, stableY));
         return matrix[realMatrixPos.y][realMatrixPos.x];
     }
 
+
+    // whether there are no players in the cell
     private bool IsCellEmpty(Vector2Int stableMatrixPos)
     {
         Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
@@ -173,9 +166,10 @@ public class Field : MonoBehaviour
         return true;
     }
 
+    // if nothing prevents us from moving into the cell (basically, if it exists and is empty)
     public bool CellCompliesWithRules(Vector2Int stableMatrixPos)
     {
-        return IsCellEmpty(stableMatrixPos) && HasCell(stableMatrixPos.x, stableMatrixPos.y);
+        return HasCell(stableMatrixPos.x, stableMatrixPos.y) && IsCellEmpty(stableMatrixPos);
     }
 
     // returns distance from the point to every border
@@ -244,9 +238,10 @@ public class Field : MonoBehaviour
 
     }
 
+
+    // updates the size of the matrix according to the move
     private void UpdateSize(Vector2Int stableMatrixPos)
     {
-        Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
         foreach (var distanceBorderPair in DistanceToBorders(stableMatrixPos))
         {
             if (distanceBorderPair.distance <= expandingDistance)
@@ -256,6 +251,7 @@ public class Field : MonoBehaviour
         }
     } 
 
+    // converts stable pos to matrix pos
     private Vector2Int StablePosToMatrixPos(Vector2Int stableMatrixPos)
     {
         return stableMatrixPos + new Vector2Int(
@@ -263,6 +259,8 @@ public class Field : MonoBehaviour
             totalIncrease.yBot + initialSize.height / 2);
     }
 
+
+    // converts matrix pos to stable pos
     private Vector2Int MatrixPosToStablePos(Vector2Int realMatrixPos)
     {
         return realMatrixPos - new Vector2Int(
@@ -270,6 +268,8 @@ public class Field : MonoBehaviour
             totalIncrease.yBot + initialSize.height / 2);
     }
 
+
+    // returns the bounds of the field (in stable representation)
     public (int xLeft, int xRight, int yBot, int yTop) GetStableBounds()
     {
         Vector2Int stableBotLeft = MatrixPosToStablePos(new Vector2Int(0, 0));
@@ -278,8 +278,7 @@ public class Field : MonoBehaviour
         return (stableBotLeft.x, stableTopRight.x, stableBotLeft.y, stableTopRight.y);
     }
 
-    // matrix pos stays constant forever
-    // it needs to be adjusted according to current expansion and size
+    // puts the player into the field, expanding it afterwards
     public void PutPlayer(Vector2Int stableMatrixPos, PlayerMark player, bool sendMsg = true)
     {
         Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);

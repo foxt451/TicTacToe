@@ -1,13 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
+// popup with end game info
 public class EndGameInfo : MonoBehaviour
 {
+    // the text with the message about the winner
     [SerializeField]
     private Text message;
 
+    // image, where we are going to insert the necessary player sprite of the winner
     [SerializeField]
     private Image winnerImage;
     [SerializeField]
@@ -15,8 +16,10 @@ public class EndGameInfo : MonoBehaviour
     [SerializeField]
     private Sprite player2Sprite;
 
+    // whether the popup was displayed this frame, if yes - then we don't close it even if there are some clicks
     private bool openedThisFrame;
 
+    // display the popup
     public void DisplayEndGameInfo(PlayerMark playerToWin)
     {
         if (playerToWin == PlayerMark.Empty)
@@ -34,6 +37,7 @@ public class EndGameInfo : MonoBehaviour
         openedThisFrame = true;
     }
 
+    // hide the popup
     public void Hide()
     {
         gameObject.SetActive(false);

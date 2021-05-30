@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
+// line representation
 public struct Line
 {
     public int length;
@@ -16,6 +14,8 @@ public struct Line
         this.stableEnd2 = stableEnd2;
     }
 
+
+    // the array of line cells
     public (int stableX, int stableY)[] GetLineCells()
     {
         var result = new (int stableX, int stableY)[length];

@@ -3,20 +3,26 @@ using UnityEngine;
 using System;
 using C5;
 
+// class for AI (minimax algorithm)
 public class MinimaxAI : MonoBehaviour
 {
+    // field to calculate the best move on
     [SerializeField]
     private Field field;
 
+    // how far we are ready to calculate the moves (recurstion max depth)
     [SerializeField]
     private int movesToCalculate;
 
+    // we don't want to see beyond some distance from last x moves, otherwise after the field gets too big, it'll be overhead
     [SerializeField]
     private int maxRangeFromLastMoves;
 
+    // line length to win or start get points for
     [SerializeField]
     private int winLine;
 
+    // how much moves we even look at (based on heuristics)
     [SerializeField]
     private int maxPosNumberEachLevel = 100;
 
@@ -24,18 +30,22 @@ public class MinimaxAI : MonoBehaviour
     // negative score for player2
     private delegate int StaticAnalysis();
 
+    // whether the game is over with current field
     private delegate bool IsGameOver();
 
+    // the game in timed mode (for AI at least) is never over
     private bool IsGameOverTimed()
     {
         return false;
     }
 
+    // will return true when someone hits line of 5
     private bool IsGameOverDifficulty(DifficultyGameAnalyzer analyzer)
     {
         return analyzer.GetGameStatus() == DifficultyGameStatus.Defeated;
     }
 
+    // difference between scores
     private int TimedStaticAnalysis(TimedGameAnalyzer analyzer)
     {
         // save state before analyzing
@@ -49,6 +59,7 @@ public class MinimaxAI : MonoBehaviour
         return deltaScores.player1Score - deltaScores.player2Score;
     }
 
+    // 1 if player 1 builds a line, -1 - player 2, 0 - otherwise
     private int DifficultyStaticAnalysis(DifficultyGameAnalyzer analyzer)
     {
         (int player1, int player2) scores = (0, 0);
@@ -67,6 +78,7 @@ public class MinimaxAI : MonoBehaviour
     }
 
     // stable pos
+    // returns best position our AI has found
     public Vector2Int GetBestPosition(PlayerMark player, GameMode mode, GameAnalyzer analyzer)
     {
         float bestPosStart = Time.realtimeSinceStartup;
@@ -90,6 +102,7 @@ public class MinimaxAI : MonoBehaviour
 
     // positive score for player1
     // negative score for player2
+    // returns best score and score for current maximizing player (recursive function, see minimax)
     private (int score, (int x, int y) posToMove) Minimax(int depth, PlayerMark maximizing, StaticAnalysis getScore,
         IsGameOver isGameOver, GameAnalyzer analyzer, int alpha = int.MinValue, int beta = int.MaxValue)
     {
@@ -139,6 +152,7 @@ public class MinimaxAI : MonoBehaviour
             // restore field after every branch
             field.CopyField(fieldInfo, false);
 
+            // alpha-beta pruning
             if (beta <= alpha)
             {
                 break;
@@ -148,6 +162,8 @@ public class MinimaxAI : MonoBehaviour
 
         return (bestScore, bestPos);
     }
+
+    // sorts positions by their heuristics
     private IntervalHeap<((int x, int y) pos, double h)> GetPosesSortedByHeuristics(GameAnalyzer analyzer)
     {
         IntervalHeap<((int x, int y) pos, double h)> moves = new IntervalHeap<((int x, int y) pos, double h)>(
@@ -179,12 +195,14 @@ public class MinimaxAI : MonoBehaviour
         return moves;
     }
 
+    // calculates heuristics for a pos by adding its advantage for player1 and 2
     private double Heuristics2Players1Pos((int i, int j) pos, GameAnalyzer analyzer)
     {
         double h1 = Heuristics1Player1Pos(pos, analyzer, PlayerMark.Player1);
         double h2 = Heuristics1Player1Pos(pos, analyzer, PlayerMark.Player2);
         return h1 + h2;
     }
+    // calculates avdantage of the pos for one player
     private double Heuristics1Player1Pos((int i, int j) pos, GameAnalyzer analyzer, PlayerMark imaginablePlayer)
     {
         List<(int totalSpace, List<(int combo, bool isEmpty, bool isPosInSeries)> series)> advantage = analyzer.GetPosAdvantage(pos, imaginablePlayer,

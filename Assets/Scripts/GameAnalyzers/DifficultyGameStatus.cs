@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿// what is the status of the difficulty game
 public enum DifficultyGameStatus
 {
     Defeated,

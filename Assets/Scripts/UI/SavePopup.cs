@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
+// popup for saving and loading games
 public class SavePopup : MonoBehaviour
 {
     [SerializeField]

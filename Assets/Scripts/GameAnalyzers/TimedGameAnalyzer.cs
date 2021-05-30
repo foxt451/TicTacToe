@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
+
+// analyzer for timed mode
 public class TimedGameAnalyzer : GameAnalyzer
 {
-
-    // TODO
-    // add game analyzer serialization
     public TimedGameAnalyzer(Field field, int lineLength) : base(field, lineLength)
     {
     }
 
+    // the cells we already have added points for
     private HashSet<(int x, int y)> accountedCells = new HashSet<(int x, int y)>();
 
+    // serializable info
     public TimedGameAnalyzerInfo GetSerializableInfo()
     {
         TimedGameAnalyzerInfo info = new TimedGameAnalyzerInfo();
@@ -23,12 +19,13 @@ public class TimedGameAnalyzer : GameAnalyzer
         return info;
     }
 
+    // reconstruct from serializable info
     public void Reconstruct(TimedGameAnalyzerInfo info)
     {
         accountedCells = new HashSet<(int x, int y)>(info.accountedCells);
     }
 
-
+    // game score, calculated for the last moves stored in the field (+1 for every unaccounted cell)
     public (int player1Score, int player2Score) GetGameScore()
     {
         int player1Score = 0, player2Score = 0;

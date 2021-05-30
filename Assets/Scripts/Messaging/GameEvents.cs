@@ -1,4 +1,6 @@
-﻿public static class GameEvents
+﻿
+// class, containing constants for possible event names
+public static class GameEvents
 {
     public const string FIELD_UPDATED = "FIELD_UPDATED";
     public const string GAMESTATE_CHANGED = "GAMESTATE_CHANGED";

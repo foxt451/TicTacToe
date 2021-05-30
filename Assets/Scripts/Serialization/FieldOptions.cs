@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// serialization info for Field
 [Serializable]
 public class FieldOptions
 {

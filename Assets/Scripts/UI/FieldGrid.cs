@@ -1,11 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
+// graphical representation of the field
 public class FieldGrid : MonoBehaviour
 {
+    // sprites for possible cell outlines
     [SerializeField]
     private Tile upperLeftCell;
     [SerializeField]
@@ -27,12 +27,14 @@ public class FieldGrid : MonoBehaviour
     [SerializeField]
     private Tile lowerRightCell;
     
-
+    // matrix of the above tiles
     private Tile[,] tileMatrix;
 
+    // field object we are going to draw
     [SerializeField]
     private Field field;
 
+    // gameController to tell it to move on a cell click
     [SerializeField]
     private GameController gameController;
 
@@ -50,12 +52,6 @@ public class FieldGrid : MonoBehaviour
 
     private BoxCollider2D boxCollider;
 
-    //private Vector3 GridOffsetVector { get => new Vector3(Mathf.RoundToInt(field.offset.x + fieldTileMap.tileAnchor.x) / 2 *
-    //    fieldTileMap.cellSize.x,
-    //    Mathf.RoundToInt(field.offset.y + fieldTileMap.tileAnchor.y) / 2 * fieldTileMap.cellSize.y, 0); }
-    //// previous to calculate delta
-    //private Vector3 PreviousGridOffsetVector = new Vector3(0, 0, 0);
-
     void Awake()
     {
         tileMatrix = new Tile[,] { { lowerLeftCell, lowerCenterCell, lowerRightCell },
@@ -70,6 +66,7 @@ public class FieldGrid : MonoBehaviour
         Messenger.RemoveListener(GameEvents.FIELD_UPDATED, RedrawGrid);
     }
 
+    // when the mouse is pressed, we may move into the pressed cell
     void OnMouseDown()
     {
         if (GameController.controller.GameState != GameState.INGAME)
@@ -84,16 +81,12 @@ public class FieldGrid : MonoBehaviour
 
         Vector3 clickPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int pos = fieldTileMap.WorldToCell(clickPoint);
-        Debug.Log("Cell " + pos);
 
-        // matrix position are passed not adjusted to expansion
-        // so that they hold even after Expand
-        // they are adjusted in field Move method
         Vector3Int stableMatrixPos = pos;
-        Debug.Log("Stable " + stableMatrixPos);
         gameController.MoveWithPlayer(new Vector2Int(stableMatrixPos.x, stableMatrixPos.y));
     }
 
+    // totally updates the grid
     void RedrawGrid()
     {
         ResizeCollider();
@@ -115,6 +108,7 @@ public class FieldGrid : MonoBehaviour
         boxCollider.offset = offset;
     }
 
+    // redraws tilemap with cell outlines
     void RedrawFieldTilemap()
     {
         fieldTileMap.ClearAllTiles();
@@ -133,6 +127,7 @@ public class FieldGrid : MonoBehaviour
         }
     }
 
+    // redraws the tilemap with player marks
     void RedrawPlayersTilemap()
     {
         playerTileMap.ClearAllTiles();

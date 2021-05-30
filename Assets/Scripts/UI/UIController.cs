@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
+    // references to different popups
     [SerializeField]
     private ReplayPopup replayPopup;
 
@@ -38,12 +36,13 @@ public class UIController : MonoBehaviour
         Messenger.AddListener(GameEvents.AI_FINISH, HideAiProgress);
     }
 
+    // shows the icon with AI move processing
     private void ShowAiProgress()
     {
-        Debug.Log("SHOW");
         AI_ProgressImage.gameObject.SetActive(true);
     }
 
+    // hides the icon with AI move processing
     private void HideAiProgress()
     {
         AI_ProgressImage.gameObject.SetActive(false);
@@ -57,14 +56,15 @@ public class UIController : MonoBehaviour
         Messenger.RemoveListener(GameEvents.AI_FINISH, HideAiProgress);
     }
 
+    // displays end game info
     void OnEndGame(PlayerMark playerToWin)
     {
         endInfo.DisplayEndGameInfo(playerToWin);
     }
 
+    // opens/hides popups for the specified gameState
     void OnGameStateChanged(GameState state)
     {
-        Debug.Log(1);
         if (state == GameState.INGAME)
         {
             savePopup.Hide();
@@ -82,7 +82,7 @@ public class UIController : MonoBehaviour
         }
     }
 
-
+    // what UI will look at the start of the game
     void InitialSetup()
     {
         savePopup.Hide();
@@ -93,6 +93,7 @@ public class UIController : MonoBehaviour
         HideAiProgress();
     }
 
+    // opens replay popup (and closes others, if they are open)
     public void ShowReplayPopup()
     {
         savePopup.Hide();
@@ -107,12 +108,14 @@ public class UIController : MonoBehaviour
         }
     }
 
+    // closes replay popup
     public void CloseReplayPopup()
     {
         replayPopup.Hide();
         GameController.controller.GameState = GameState.INGAME;
     }
 
+    // shows save popup (and closes others, if they are open)
     public void ShowSavePopup()
     {
         savePopup.Show();
@@ -126,6 +129,7 @@ public class UIController : MonoBehaviour
         }
     }
 
+    // closes save popup
     public void CloseSavePopup()
     {
         savePopup.Hide();

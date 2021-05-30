@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// analyzer for difficulty mode
 public class DifficultyGameAnalyzer: GameAnalyzer
 {
     public DifficultyGameAnalyzer(Field field, int lineLength) : base(field, lineLength)

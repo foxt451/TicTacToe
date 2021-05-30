@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// class to move the camera around the field
 public class MousePanner : MonoBehaviour
 {
     [SerializeField]
@@ -38,7 +40,6 @@ public class MousePanner : MonoBehaviour
     }
 
     // sets camera pos
-
     public void SetCurPos((float x, float y, float z) pos)
     {
         transform.position = new Vector3(pos.x, pos.y, pos.z);

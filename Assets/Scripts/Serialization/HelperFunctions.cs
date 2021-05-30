@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 public static class HelperFunctions
 {
+    // deep-copies a matrix
     public static List<List<T>> DeepMatrixCopy<T>(List<List<T>> matrix)
     {
         List<List<T>> newMatrix = new List<List<T>>();

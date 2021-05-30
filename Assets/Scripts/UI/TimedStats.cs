@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
+// the statistics of the timed game displayed in the top part of the screen (such as time left and scores)
 public class TimedStats : MonoBehaviour
 {
     [SerializeField]
@@ -19,6 +18,7 @@ public class TimedStats : MonoBehaviour
         UpdateData();
     }
 
+    // updates stats data according to info in gameController
     void UpdateData()
     {
         int seconds = (int)GameController.controller.totalSecondsTime;
@@ -28,11 +28,13 @@ public class TimedStats : MonoBehaviour
         score2Text.text = GameController.controller.score.player2.ToString();
     }
 
+    // hides the section (in difficulty mode)
     public void Hide()
     {
         gameObject.SetActive(false);
     }
 
+    // shows the section (in timed mode)
     public void Show()
     {
         UpdateData();

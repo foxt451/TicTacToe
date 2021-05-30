@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
+
+// general analyzer, fits into both modes
 public class GameAnalyzer
 {
     protected Field field;
@@ -19,6 +18,9 @@ public class GameAnalyzer
         (-1, 1) // left-diagonal
     };
 
+
+    // what is the last cell we get moving into the specified direction? also, optional parameters to specify whether we want to include empty
+    // cells and if we want to imagine that in the initial cell we have some player
     private (int x, int y, int length) GetLastCellOfLineInSemiDirection((int deltaX, int deltaY) semiDirection,
         (int x, int y) startCell, bool earlyExit, int earlyExitDistance, bool ignoreEmpty=false,
         bool imaginePlayer = false, PlayerMark imaginable = PlayerMark.Empty)
@@ -56,6 +58,8 @@ public class GameAnalyzer
         return (startCell.x, startCell.y, length);
     }
 
+
+    // the line we get moving into some direction (and its reverse) (also, parameters if we want to include empty cells)
     protected Line GetLineInFullDirection((int deltaX, int deltaY) direction, (int x, int y) lastMove, bool earlyExit,
         int earlyExitLength, bool ignoreEmpty=false, bool imaginePlayer = false, PlayerMark imaginable = PlayerMark.Empty)
     {
@@ -69,6 +73,8 @@ public class GameAnalyzer
             (end1.x, end1.y));
     }
 
+
+    // combos of cells we get moving into some direction, needed for heuristics
     public List<(int totalSpace, List<(int combo, bool isEmpty, bool isPosInSeries)> series)> GetPosAdvantage((int x, int y) pos, PlayerMark imaginablePlayer, int maxRange)
     {
         var result = new List<(int totalSpace, List<(int combo, bool isEmpty, bool isPosInSeries)> series)>();
