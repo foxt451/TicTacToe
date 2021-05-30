@@ -7,6 +7,8 @@ public class MousePanner : MonoBehaviour
     [SerializeField]
     public static (float x, float y, float z) defaultCameraPos = (0, 0, -10);
 
+
+    // the speed of camera movement
     public float dragSpeed = 2f;
     private Vector3 originMousePos;
     private Vector3 originCameraWorldPos;
@@ -29,10 +31,13 @@ public class MousePanner : MonoBehaviour
         }
     }
 
+    // returns the current camera pos for serialization
     public (float x, float y, float z) GetCurPos()
     {
         return (transform.position.x, transform.position.y, transform.position.z);
     }
+
+    // sets camera pos
 
     public void SetCurPos((float x, float y, float z) pos)
     {

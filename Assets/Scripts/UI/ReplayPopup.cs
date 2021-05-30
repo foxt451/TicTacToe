@@ -33,8 +33,6 @@ public class ReplayPopup : MonoBehaviour
 
     void OnTimedModeChange(bool isTimed)
     {
-        Debug.Log(popupRectTransform.sizeDelta);
-        Debug.Log(timeSectionRectTransform.sizeDelta);
         if (isTimed)
         {
             if (!timeSection.gameObject.activeSelf)

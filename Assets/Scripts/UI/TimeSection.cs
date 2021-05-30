@@ -14,47 +14,21 @@ public class TimeSection : MonoBehaviour
     [SerializeField]
     private InputField secondsField;
 
-    public void Hide()
-    {
-        gameObject.SetActive(false);
-    }
-
     public void Show()
     {
         gameObject.SetActive(true);
+    }
+
+    public void Hide()
+    {
+        gameObject.SetActive(false);
     }
 
     private void Start()
     {
         minutesField.onValidateInput += ValidateMinutes;
         secondsField.onValidateInput += ValidateSeconds;
-
-        //minutesField.onValueChanged.AddListener((string value) => AddZeroesToField(minutesField));
-        //secondsField.onValueChanged.AddListener((string value) => AddZeroesToField(secondsField));
     }
-
-    //void AddZeroesToField(InputField field)
-    //{
-    //    Debug.Log("Changing");
-    //    field.textComponent.text = AddLeadingZeroes(field.text);
-    //    Debug.Log(AddLeadingZeroes(field.text));
-    //}
-
-    //string AddLeadingZeroes(string value)
-    //{
-    //    if (value.Length == 1)
-    //    {
-    //        return "0" + value;
-    //    }
-    //    else if (value.Length == 0)
-    //    {
-    //        return "00";
-    //    }
-    //    else
-    //    {
-    //        return value;
-    //    }
-    //}
 
     char ValidateMinutes(string text, int charIndex, char addedChar)
     {

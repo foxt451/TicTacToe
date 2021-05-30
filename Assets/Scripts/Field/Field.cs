@@ -16,7 +16,7 @@ public class Field : MonoBehaviour
     [SerializeField]
     private int lastMovesToStore = 5;
 
-    private List<(int x, int y)> lastMoves = new List<(int x, int y)>();
+    public List<(int x, int y)> lastMoves = new List<(int x, int y)>();
 
     // it's more convenient to work indirectly through variables rather than returning List dimensions
     // because we may want to modify the list, at the same time relying on the old width and height
@@ -161,12 +161,6 @@ public class Field : MonoBehaviour
     {
         Vector2Int realMatrixPos = StablePosToMatrixPos(new Vector2Int(stableX, stableY));
         return matrix[realMatrixPos.y][realMatrixPos.x];
-     }
-
-    private bool FallsWithinGrid(Vector2Int stableMatrixPos)
-    {
-        Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
-        return realMatrixPos.x < Width && realMatrixPos.x >= 0 && realMatrixPos.y < Height & realMatrixPos.y >= 0;
     }
 
     private bool IsCellEmpty(Vector2Int stableMatrixPos)
@@ -181,7 +175,7 @@ public class Field : MonoBehaviour
 
     public bool CellCompliesWithRules(Vector2Int stableMatrixPos)
     {
-        return IsCellEmpty(stableMatrixPos) && FallsWithinGrid(stableMatrixPos);
+        return IsCellEmpty(stableMatrixPos) && HasCell(stableMatrixPos.x, stableMatrixPos.y);
     }
 
     // returns distance from the point to every border
@@ -291,7 +285,7 @@ public class Field : MonoBehaviour
         Vector2Int realMatrixPos = StablePosToMatrixPos(stableMatrixPos);
 
         // check if the pos falls within the current field
-        if (!FallsWithinGrid(stableMatrixPos))
+        if (!HasCell(stableMatrixPos.x, stableMatrixPos.y))
         {
             return;
         }

@@ -29,28 +29,30 @@ public class TimedGameAnalyzer : GameAnalyzer
     }
 
 
-    // returns Defeated if we have a row of 'lineLength'
     public (int player1Score, int player2Score) GetGameScore()
     {
         int player1Score = 0, player2Score = 0;
-        foreach (var direction in directions)
+        foreach (var lastCell in field.lastMoves)
         {
-            Line line = GetLineInFullDirection(direction, field.stableLastMove, false, 0);
-            if (line.length >= lineLength)
+            foreach (var direction in directions)
             {
-                foreach ((int x, int y) cell in line.GetLineCells())
+                Line line = GetLineInFullDirection(direction, lastCell, false, 0);
+                if (line.length >= lineLength)
                 {
-                    if (!accountedCells.Contains(cell))
+                    foreach ((int x, int y) cell in line.GetLineCells())
                     {
-                        if (field.GetPlayerAtCell(cell.x, cell.y) == PlayerMark.Player1)
+                        if (!accountedCells.Contains(cell))
                         {
-                            player1Score++;
+                            if (field.GetPlayerAtCell(cell.x, cell.y) == PlayerMark.Player1)
+                            {
+                                player1Score++;
+                            }
+                            else if (field.GetPlayerAtCell(cell.x, cell.y) == PlayerMark.Player2)
+                            {
+                                player2Score++;
+                            }
+                            accountedCells.Add(cell);
                         }
-                        else if (field.GetPlayerAtCell(cell.x, cell.y) == PlayerMark.Player2)
-                        {
-                            player2Score++;
-                        }
-                        accountedCells.Add(cell);
                     }
                 }
             }

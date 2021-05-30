@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
 using C5;
@@ -20,25 +19,6 @@ public class MinimaxAI : MonoBehaviour
 
     [SerializeField]
     private int maxPosNumberEachLevel = 100;
-
-    private Vector2Int GetRandomAvailablePos()
-    {
-        List<Vector2Int> available = new List<Vector2Int>();
-        var bounds = field.GetStableBounds();
-        for (int i = bounds.xLeft; i <= bounds.xRight; i++)
-        {
-            for (int j = bounds.yBot; j <= bounds.yTop; j++)
-            {
-                if (field.GetPlayerAtCell(i, j) == PlayerMark.Empty)
-                {
-                    available.Add(new Vector2Int(i, j));
-                }
-            }
-        }
-
-        int ind = new System.Random().Next(available.Count);
-        return available[ind];
-    }
 
     // positive score for player1
     // negative score for player2
@@ -86,11 +66,6 @@ public class MinimaxAI : MonoBehaviour
         return scores.player1 - scores.player2;
     }
 
-    private int[] GetBothPositiveAndNegative(int x)
-    {
-        return new int[] { -x, x };
-    }
-
     // stable pos
     public Vector2Int GetBestPosition(PlayerMark player, GameMode mode, GameAnalyzer analyzer)
     {
@@ -100,7 +75,7 @@ public class MinimaxAI : MonoBehaviour
         IsGameOver isGameOver;
         if (mode == GameMode.Difficulty)
         {
-            getScore = () => DifficultyStaticAnalysis((DifficultyGameAnalyzer)analyzer) * 1000000;
+            getScore = () => DifficultyStaticAnalysis((DifficultyGameAnalyzer)analyzer);
             isGameOver = () => IsGameOverDifficulty((DifficultyGameAnalyzer)analyzer);
         }
         else
@@ -108,26 +83,16 @@ public class MinimaxAI : MonoBehaviour
             getScore = () => TimedStaticAnalysis((TimedGameAnalyzer)analyzer);
             isGameOver = IsGameOverTimed;
         }
-        recursiveCalls = 0;
-        secondsInGetPoses = 0;
-        secondsInH = 0;
         var bestResult = Minimax(movesToCalculate, player, getScore, isGameOver, new GameAnalyzer(field, winLine));
         float bestPosEnd = Time.realtimeSinceStartup;
-        Debug.Log("Minimax called " + recursiveCalls);
-        Debug.Log("Secs in GetPoses " + secondsInGetPoses);
-        Debug.Log("Secs in H " + secondsInH);
-        Debug.Log("Total secs " + (bestPosEnd - bestPosStart));
-        Debug.Log("best move " + bestResult.posToMove);
         return new Vector2Int(bestResult.posToMove.x, bestResult.posToMove.y);
     }
 
     // positive score for player1
     // negative score for player2
-    private int recursiveCalls = 0;
     private (int score, (int x, int y) posToMove) Minimax(int depth, PlayerMark maximizing, StaticAnalysis getScore,
         IsGameOver isGameOver, GameAnalyzer analyzer, int alpha = int.MinValue, int beta = int.MaxValue)
     {
-        recursiveCalls++;
         if (depth == 0 || isGameOver())
         {
             return (getScore() * (depth + 1), field.stableLastMove);
@@ -140,7 +105,7 @@ public class MinimaxAI : MonoBehaviour
         int bestScore = maximizing == PlayerMark.Player1 ? int.MinValue : int.MaxValue;
         (int x, int y) bestPos = (0, 0);
 
-        IntervalHeap<((int x, int y) pos, double h)> moves = GetPosesSortedByHeuristics(maximizing, analyzer);
+        IntervalHeap<((int x, int y) pos, double h)> moves = GetPosesSortedByHeuristics(analyzer);
         for (int k = 0; k < maxPosNumberEachLevel && !moves.IsEmpty; k++)
         {
             ((int x, int y) pos, double h) = moves.DeleteMax();
@@ -183,11 +148,8 @@ public class MinimaxAI : MonoBehaviour
 
         return (bestScore, bestPos);
     }
-
-    private double secondsInGetPoses = 0;
-    private IntervalHeap<((int x, int y) pos, double h)> GetPosesSortedByHeuristics(PlayerMark imaginablePlayer, GameAnalyzer analyzer)
+    private IntervalHeap<((int x, int y) pos, double h)> GetPosesSortedByHeuristics(GameAnalyzer analyzer)
     {
-        double start = Time.realtimeSinceStartup;
         IntervalHeap<((int x, int y) pos, double h)> moves = new IntervalHeap<((int x, int y) pos, double h)>(
             Comparer<((int x, int y) pos, double h)>.Create(
                 (((int x, int y) pos, double h) v1, ((int x, int y) pos, double h) v2) =>
@@ -210,22 +172,12 @@ public class MinimaxAI : MonoBehaviour
                     
                     continue;
                 }
-                //// if out of specified range - continue
-                //if (Math.Abs(field.stableLastMove.x - x) > maxRangeFromLastMove ||
-                //    Math.Abs(field.stableLastMove.y - y) > maxRangeFromLastMove)
-                //{
-                //    continue;
-                //}
                 double posH = Heuristics2Players1Pos((x, y), analyzer);
                 moves.Add(((x, y), posH));
             }
         }
-        double end = Time.realtimeSinceStartup;
-        secondsInGetPoses += end - start;
         return moves;
     }
-
-    private double secondsInH = 0;
 
     private double Heuristics2Players1Pos((int i, int j) pos, GameAnalyzer analyzer)
     {
@@ -235,7 +187,6 @@ public class MinimaxAI : MonoBehaviour
     }
     private double Heuristics1Player1Pos((int i, int j) pos, GameAnalyzer analyzer, PlayerMark imaginablePlayer)
     {
-        double start = Time.realtimeSinceStartup;
         List<(int totalSpace, List<(int combo, bool isEmpty, bool isPosInSeries)> series)> advantage = analyzer.GetPosAdvantage(pos, imaginablePlayer,
             maxRangeFromLastMoves);
         double h = 0;
@@ -272,13 +223,6 @@ public class MinimaxAI : MonoBehaviour
             dirH /= Math.Log(emptyBetween + 2, 2);
             h += dirH;
         }
-        double end = Time.realtimeSinceStartup;
-        secondsInH += end - start;
         return h;
     }
-
-    //private bool ShouldSkip(int i, int j)
-    //{
-    //    // sum of subheuristics for every direction
-    //}
 }

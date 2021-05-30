@@ -65,22 +65,12 @@ public class FieldGrid : MonoBehaviour
         boxCollider = GetComponent<BoxCollider2D>();
     }
 
-    private void Start()
-    {
-        
-    }
-
-    private void Update()
-    {
-
-    }
-
     void OnDestroy()
     {
         Messenger.RemoveListener(GameEvents.FIELD_UPDATED, RedrawGrid);
     }
 
-    public void OnMouseDown()
+    void OnMouseDown()
     {
         if (GameController.controller.GameState != GameState.INGAME)
         {
